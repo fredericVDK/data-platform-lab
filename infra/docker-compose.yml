@@ -1,3 +1,9 @@
+# Starten:                docker compose up -d
+# Met Grafana/Prometheus:  docker compose --profile monitoring up -d
+#
+# Alle poorten staan enkel op 127.0.0.1: Docker-poorten omzeilen ufw.
+# Toegang van buitenaf loopt via `tailscale serve` (zie docs/toegang.md).
+
 services:
   postgres:
     image: postgres:16
@@ -12,8 +18,6 @@ services:
       BI_READER_PASSWORD: ${BI_READER_PASSWORD:?zet BI_READER_PASSWORD in .env}
       TZ: Europe/Brussels
     ports:
-      # Docker-poorten omzeilen ufw: daarom enkel op localhost binden.
-      # DBeaver verbindt via een SSH-tunnel; Tailscale-IP komt in een latere stap.
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -24,5 +28,60 @@ services:
       timeout: 5s
       retries: 5
 
+  # Monitoring + meldingen (web-UI op poort 3001)
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Brussels
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - kuma:/app/data
+
+  # ---- optioneel: CPU, RAM en schijf (profiel "monitoring") ----
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    profiles: [monitoring]
+    pid: host
+    command:
+      - --path.rootfs=/host
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+)($$|/)
+    volumes:
+      - /:/host:ro,rslave
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    profiles: [monitoring]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    profiles: [monitoring]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      TZ: Europe/Brussels
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+
 volumes:
   pgdata:
+  kuma:
+  prometheus-data:
+  grafana-data:
