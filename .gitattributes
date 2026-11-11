@@ -1,0 +1,4 @@
+# scripts die op de Linux-server draaien altijd met LF
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.sql  text eol=lf

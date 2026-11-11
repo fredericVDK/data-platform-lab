@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?zet POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: steelline
+      # alleen gebruikt door initdb/01-roles.sh bij de allereerste start
+      ETL_WRITER_PASSWORD: ${ETL_WRITER_PASSWORD:?zet ETL_WRITER_PASSWORD in .env}
+      BI_READER_PASSWORD: ${BI_READER_PASSWORD:?zet BI_READER_PASSWORD in .env}
+      TZ: Europe/Brussels
+    ports:
+      # Docker-poorten omzeilen ufw: daarom enkel op localhost binden.
+      # DBeaver verbindt via een SSH-tunnel; Tailscale-IP komt in een latere stap.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d steelline"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
