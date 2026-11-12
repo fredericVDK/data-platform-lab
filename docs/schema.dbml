@@ -1,0 +1,190 @@
+// SteelLine - sterschema (dwh) + staging
+// Plak dit in https://dbdiagram.io/d om het diagram te bewerken.
+// Bron van waarheid blijft sql/001_schema.sql en sql/002_staging.sql.
+
+Project steelline {
+  database_type: 'PostgreSQL'
+  Note: 'Gesimuleerde staalfabriek: productie en stilstand per installatie'
+}
+
+// ---------------- dimensies ----------------
+
+Table dwh.dim_date {
+  date_key integer [pk, note: 'YYYYMMDD']
+  datum date [unique, not null]
+  jaar smallint
+  kwartaal smallint
+  maand smallint
+  maand_naam text
+  iso_jaar smallint
+  iso_week smallint
+  dag_van_week smallint [note: '1 = maandag']
+  dag_naam text
+  is_weekend boolean
+  is_feestdag boolean
+  feestdag_naam text
+  werkdag boolean
+}
+
+Table dwh.dim_shift {
+  shift_key smallint [pk, increment]
+  shift_code text [unique, note: 'VROEG / LAAT / NACHT']
+  ploeg text
+  start_tijd time
+  eind_tijd time
+  ploegleider text
+}
+
+Table dwh.dim_installation {
+  installation_key smallint [pk, increment]
+  installation_code text [unique, note: 'WW1, BL1, KW1, GO1']
+  naam text
+  soort text
+  lijn text
+  volgorde_in_lijn smallint
+  capaciteit_t_per_uur numeric
+  actief boolean
+}
+
+Table dwh.dim_steel_grade {
+  grade_key smallint [pk, increment]
+  grade_code text [unique, note: 'S355J2, DC04, ...']
+  kwaliteit text
+  familie text
+  min_dikte_mm numeric
+  max_dikte_mm numeric
+}
+
+Table dwh.dim_downtime_reason {
+  reason_key smallint [pk, increment, note: '-1 = onbekend']
+  reason_code text [unique]
+  categorie text [note: 'mechanisch, elektrisch, wissel, wachten op materiaal, gepland onderhoud']
+  omschrijving text
+  standaard_gepland boolean
+}
+
+// ---------------- feiten ----------------
+
+Table dwh.fact_production {
+  production_id bigint [pk, increment]
+  coil_id text [not null, note: 'degenerate dimension']
+  date_key integer [ref: > dwh.dim_date.date_key]
+  shift_key smallint [ref: > dwh.dim_shift.shift_key]
+  installation_key smallint [ref: > dwh.dim_installation.installation_key]
+  steel_grade_key smallint [ref: > dwh.dim_steel_grade.grade_key]
+  start_ts timestamptz
+  weight_t numeric
+  thickness_mm numeric
+  target_thickness_mm numeric
+  thickness_dev_mm numeric [note: 'berekend']
+  temp_c numeric
+  duration_min numeric
+  is_defect boolean
+  defect_type text
+  load_id bigint [note: 'logische verwijzing naar staging.load_batch (geen FK)']
+  loaded_at timestamptz
+
+  indexes {
+    (coil_id, installation_key) [unique]
+    (date_key, installation_key)
+  }
+}
+
+Table dwh.fact_downtime {
+  downtime_id bigint [pk, increment]
+  source text [note: 'sensor / app']
+  source_event_id text
+  date_key integer [ref: > dwh.dim_date.date_key]
+  shift_key smallint [ref: > dwh.dim_shift.shift_key]
+  installation_key smallint [ref: > dwh.dim_installation.installation_key]
+  reason_key smallint [ref: > dwh.dim_downtime_reason.reason_key]
+  start_ts timestamptz
+  end_ts timestamptz [note: 'NULL = loopt nog']
+  duration_min numeric [note: 'berekend']
+  planned boolean
+  opmerking text
+  load_id bigint [note: 'logische verwijzing naar staging.load_batch (geen FK)']
+  loaded_at timestamptz
+
+  indexes {
+    (source, source_event_id) [unique]
+    (date_key, installation_key)
+  }
+}
+
+// ---------------- staging ----------------
+// (load_id in dwh is een logische verwijzing; er staat geen echte FK
+//  over de schema's heen, zodat staging los kan worden opgekuist.)
+
+Table staging.load_batch {
+  load_id bigint [pk, increment]
+  bron text
+  bestand text
+  productiedag date
+  gestart_op timestamptz
+  beeindigd_op timestamptz
+  status text [note: 'bezig / geslaagd / deels / mislukt']
+  rijen_gelezen integer
+  rijen_geladen integer
+  rijen_afgekeurd integer
+  foutmelding text
+}
+
+Table staging.production_raw {
+  load_id bigint [pk, ref: > staging.load_batch.load_id]
+  regelnummer integer [pk]
+  coil_id text
+  productie_datum text
+  ploeg text
+  installatie_code text
+  staalkwaliteit text
+  start_ts text
+  weight_t text
+  thickness_mm text
+  target_thickness_mm text
+  temp_c text
+  duration_min text
+  is_defect text
+  defect_type text
+}
+
+Table staging.downtime_raw {
+  load_id bigint [pk, ref: > staging.load_batch.load_id]
+  regelnummer integer [pk]
+  event_id text
+  bron text
+  installatie_code text
+  reden_code text
+  start_ts text
+  end_ts text
+  gepland text
+  opmerking text
+}
+
+Table staging.rejected_row {
+  rejected_id bigint [pk, increment]
+  load_id bigint [ref: > staging.load_batch.load_id]
+  bron_tabel text
+  regelnummer integer
+  regel text
+  reden text
+  rij jsonb
+  afgekeurd_op timestamptz
+}
+
+TableGroup sterschema {
+  dwh.fact_production
+  dwh.fact_downtime
+  dwh.dim_date
+  dwh.dim_shift
+  dwh.dim_installation
+  dwh.dim_steel_grade
+  dwh.dim_downtime_reason
+}
+
+TableGroup staging {
+  staging.load_batch
+  staging.production_raw
+  staging.downtime_raw
+  staging.rejected_row
+}
