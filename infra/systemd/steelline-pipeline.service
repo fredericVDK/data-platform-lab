@@ -1,0 +1,14 @@
+[Unit]
+Description=SteelLine nachtelijke pipeline (datagenerator + ETL)
+Documentation=file:///home/andre/data-platform-lab/infra/pipeline/README.md
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=andre
+WorkingDirectory=/home/andre/data-platform-lab/infra
+# --build: na een git pull draait automatisch de nieuwe code (zonder wijzigingen: cache, ± 1 s)
+ExecStart=/usr/bin/docker compose --profile jobs run --rm --build pipeline
+TimeoutStartSec=45min

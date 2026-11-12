@@ -80,6 +80,39 @@ services:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
 
+  # ---- nachtelijke pipeline: datagenerator + ETL (profiel "jobs") ----
+  # Start NIET met "docker compose up". Wordt elke ochtend gestart door de
+  # systemd-timer in infra/systemd/ (zie infra/pipeline/README.md). Met de hand:
+  #   docker compose --profile jobs run --rm --build pipeline
+  pipeline:
+    build:
+      context: ..
+      dockerfile: infra/pipeline/Dockerfile
+      args:
+        UID: ${PIPELINE_UID:-1000}
+        GID: ${PIPELINE_GID:-1000}
+    image: steelline-pipeline
+    profiles: [jobs]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: etl_writer
+      PGDATABASE: steelline
+      ETL_WRITER_PASSWORD: ${ETL_WRITER_PASSWORD:?zet ETL_WRITER_PASSWORD in .env}
+      # push-monitor in Uptime Kuma; host = containernaam (zelfde Docker-netwerk)
+      ETL_KUMA_PUSH_URL: ${ETL_KUMA_PUSH_URL:-}
+      INHAAL_DAGEN: ${INHAAL_DAGEN:-7}
+      TZ: Europe/Brussels
+    volumes:
+      - ../landing:/data/landing
+      - ../labels:/data/labels
+      - ../archive:/data/archive
+      - ../rejected:/data/rejected
+      - ../logs:/data/logs
+
 volumes:
   pgdata:
   kuma:

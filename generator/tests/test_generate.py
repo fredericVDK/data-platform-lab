@@ -117,3 +117,14 @@ def test_cli_schrijft_en_slaat_over(tmp_path):
     g.main(args)  # tweede keer: bestaat al -> niet opnieuw geschreven
     assert bestand.stat().st_mtime_ns == mtime
     assert not list((tmp_path / "l").glob("*.tmp"))
+
+
+def test_gearchiveerde_dag_wordt_niet_opnieuw_gemaakt(tmp_path):
+    archief = tmp_path / "a" / "2026-02"
+    archief.mkdir(parents=True)
+    for n in ("production_2026-02-03.csv", "downtime_2026-02-03.csv"):
+        (archief / n).write_text("x")
+    g.main(["--van", "2026-02-02", "--tot", "2026-02-03", "--landing", str(tmp_path / "l"),
+            "--labels", str(tmp_path / "b"), "--archief", str(tmp_path / "a"), "-q"])
+    assert sorted(p.name for p in (tmp_path / "l").glob("*.csv")) == [
+        "downtime_2026-02-02.csv", "production_2026-02-02.csv"]

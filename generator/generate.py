@@ -31,6 +31,7 @@ Gebruik
     python generate.py                          # laatste volledige productiedag
     python generate.py --dag 2026-11-11
     python generate.py --historiek 365          # 12 maanden tot en met de laatste volledige dag
+    python generate.py --historiek 7            # nachtelijk: gemiste dagen inhalen (archive/ telt mee)
     python generate.py --van 2025-11-01 --tot 2026-11-11 --overschrijven
 """
 from __future__ import annotations
@@ -541,9 +542,18 @@ def schrijf_atomair(df: pd.DataFrame, pad: Path) -> None:
     os.replace(tmp, pad)
 
 
-def schrijf_dag(d: date, landing: Path, labels: Path, vuil: float, overschrijven: bool) -> bool:
+def al_gemaakt(d: date, landing: Path, archief: Path | None) -> bool:
+    """Beide bestanden staan nog in landing/ of zijn al door de ETL gearchiveerd."""
+    namen = (f"production_{d}.csv", f"downtime_{d}.csv")
+    if all((landing / n).exists() for n in namen):
+        return True
+    return archief is not None and all((archief / f"{d:%Y-%m}" / n).exists() for n in namen)
+
+
+def schrijf_dag(d: date, landing: Path, labels: Path, vuil: float, overschrijven: bool,
+                archief: Path | None = None) -> bool:
     p_pad, s_pad = landing / f"production_{d}.csv", landing / f"downtime_{d}.csv"
-    if not overschrijven and p_pad.exists() and s_pad.exists():
+    if not overschrijven and al_gemaakt(d, landing, archief):
         log.info("%s bestaat al, overgeslagen", d)
         return False
     df_p, df_s, df_l, df_v = genereer_dag(d, vuil)
@@ -577,6 +587,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--labels", type=Path, default=Path(os.environ.get("LABELS_DIR", REPO / "labels")))
     ap.add_argument("--seed", type=int, default=int(os.environ.get("GENERATOR_SEED", 42)))
     ap.add_argument("--vuil", type=float, default=0.003, help="aandeel bewust foute rijen (0 = geen)")
+    ap.add_argument("--archief", type=Path, default=Path(os.environ.get("ARCHIVE_DIR", REPO / "archive")),
+                    help="archiefmap van de ETL: dagen die daar al staan worden overgeslagen")
     ap.add_argument("--overschrijven", action="store_true", help="bestaande bestanden opnieuw maken")
     ap.add_argument("-q", "--stil", action="store_true")
     args = ap.parse_args(argv)
@@ -602,7 +614,8 @@ def main(argv: list[str] | None = None) -> int:
 
     args.landing.mkdir(parents=True, exist_ok=True)
     args.labels.mkdir(parents=True, exist_ok=True)
-    gemaakt = sum(schrijf_dag(d, args.landing, args.labels, args.vuil, args.overschrijven) for d in dagen)
+    gemaakt = sum(schrijf_dag(d, args.landing, args.labels, args.vuil, args.overschrijven, args.archief)
+                  for d in dagen)
     log.info("klaar: %d van %d dagen geschreven naar %s", gemaakt, len(dagen), args.landing)
     return 0
 

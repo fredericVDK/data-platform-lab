@@ -75,7 +75,7 @@ docker exec -i postgres psql -U etl_writer -d steelline \
 
 ## B. Echte restore op de server (database kapot of foute data geladen)
 
-1. **Schrijvers stoppen**: ETL-cron uitschakelen, webapp stoppen (`docker compose stop webapp`).
+1. **Schrijvers stoppen**: pipeline-timer uitschakelen (`sudo systemctl stop steelline-pipeline.timer`), webapp stoppen (`docker compose stop webapp`).
 2. **Huidige toestand bewaren**, ook al is ze kapot: `~/data-platform-lab/infra/backup.sh`
 3. **Database vervangen** (rollen bestaan al in de cluster):
 

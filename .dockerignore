@@ -1,0 +1,17 @@
+# Alleen code in de build-context, geen data of geheimen
+.git
+.venv
+**/__pycache__
+**/.pytest_cache
+landing/
+labels/
+archive/
+rejected/
+logs/
+backups/
+powerbi/
+webapp/
+ai/
+docs/
+infra/.env
+*.env

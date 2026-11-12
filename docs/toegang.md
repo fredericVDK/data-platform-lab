@@ -35,6 +35,6 @@ PostgreSQL niet. `tailscale serve` heeft dat probleem niet en blijft actief na e
 
 ## Back-ups
 
-`infra/backup.sh` draait elke nacht om 03:15 (na de ETL): `pg_dump` + rollen, 7 dagen lokaal,
+`infra/backup.sh` draait elke ochtend om 07:15 (na de pipeline van 06:30): `pg_dump` + rollen, 7 dagen lokaal,
 kopie naar tweede schijf en/of cloud (rclone), status naar Uptime Kuma.
 Terugzetten: [restore.md](restore.md).

@@ -1,0 +1,11 @@
+[Unit]
+Description=SteelLine pipeline elke ochtend om 06:30 (na het einde van de nachtploeg)
+
+[Timer]
+OnCalendar=*-*-* 06:30:00
+# stond de server uit om 06:30? dan draait hij meteen na het opstarten
+Persistent=true
+RandomizedDelaySec=2min
+
+[Install]
+WantedBy=timers.target

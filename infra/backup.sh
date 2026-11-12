@@ -2,8 +2,8 @@
 # Nachtelijke back-up van PostgreSQL: database steelline (pg_dump, custom formaat)
 # + rollen en hun wachtwoorden (pg_dumpall --globals-only).
 #
-# Cron (crontab -e, gebruiker andre), elke nacht om 03:15 na de ETL van 02:00:
-#   15 3 * * * /home/andre/data-platform-lab/infra/backup.sh >> /home/andre/backups/backup.log 2>&1
+# Cron (crontab -e, gebruiker andre), elke ochtend om 07:15, na de pipeline van 06:30:
+#   15 7 * * * /home/andre/data-platform-lab/infra/backup.sh >> /home/andre/backups/backup.log 2>&1
 #
 # Instellingen komen uit infra/.env (zie .env.example). Herstellen: docs/restore.md
 set -Eeuo pipefail
