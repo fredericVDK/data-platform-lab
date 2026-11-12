@@ -142,7 +142,7 @@ flowchart LR
 
 ```bash
 cd ~/data-platform-lab
-for f in sql/001_schema.sql sql/002_staging.sql sql/003_seed_dimensions.sql; do
+for f in sql/001_schema.sql sql/002_staging.sql sql/003_seed_dimensions.sql sql/004_etl_run_log.sql; do
   docker exec -i postgres psql -U admin -d steelline -f - < "$f"
 done
 ```
