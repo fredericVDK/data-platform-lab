@@ -58,7 +58,7 @@ in `archive/` over en de ETL is idempotent.
 
 | Situatie | Wat Kuma doet |
 | --- | --- |
-| run geslaagd of deels (rijen afgekeurd) | push `up` met de tellingen in het bericht |
+| run geslaagd, deels (rijen afgekeurd) of niets te doen (alles al geladen) | push `up` met de tellingen in het bericht |
 | een bestand mislukt | push `down` → Telegram-melding meteen |
 | pipeline draaide niet (server uit, Docker kapot, generator crasht) | geen push → melding na 25 u |
 

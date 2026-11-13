@@ -334,8 +334,10 @@ def verwerk_bestand(engine: Engine, pad: Path, run_id: int, ref: Referentie,
 
 def push_kuma(totaal: Totaal, duur: float) -> None:
     url = instelling("ETL_KUMA_PUSH_URL")
-    if not url or totaal.status == "niets te doen":
-        return  # geen bestanden = geen push; blijft dat zo, dan meldt Kuma het na het interval
+    if not url:
+        return
+    # ook "niets te doen" is up: alles is al geladen. Crasht de generator, dan
+    # stopt nightly.sh vóór de ETL en komt er geen push -> Kuma meldt na 25 u.
     up = totaal.status != "mislukt"
     msg = (f"{totaal.status}: {totaal.bestanden} bestanden, {totaal.geladen} geladen, "
            f"{totaal.afgekeurd} afgekeurd" + (f" | {totaal.fouten[0]}" if totaal.fouten else ""))
