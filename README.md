@@ -46,7 +46,7 @@ data-platform-lab/
   generator/    Python: fake fabrieksdata
   etl/          Python: laden in de database
   sql/          schema, views, migraties
-  powerbi/      .pbix + screenshots
+  powerbi/      Power BI-project (.pbip), DAX-metingen, screenshots
   webapp/       ASP.NET Core-app
   ai/           chatbot + anomaliedetectie
   docs/         architectuur, beslissingen

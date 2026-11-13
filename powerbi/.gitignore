@@ -1,0 +1,5 @@
+# Power BI-project (.pbip): lokale instellingen en de cache met data
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+# oude binaire vorm; gebruik .pbip
+*.pbix

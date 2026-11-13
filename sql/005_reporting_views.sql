@@ -3,7 +3,7 @@
 -- =====================================================================
 --   dwh.vw_oee_shift            OEE per dag x ploeg x installatie
 --   dwh.vw_daily_oee            OEE per dag x installatie
---   dwh.vw_downtime_by_reason   stilstand per dag x installatie x oorzaak
+--   dwh.vw_downtime_by_reason   stilstand per dag x ploeg x installatie x oorzaak
 --
 -- OEE = beschikbaarheid x prestatie x kwaliteit
 --
@@ -38,6 +38,7 @@ SET search_path = dwh;
 
 DROP VIEW IF EXISTS vw_daily_oee;   -- hangt af van vw_oee_shift
 DROP VIEW IF EXISTS vw_oee_shift;
+DROP VIEW IF EXISTS vw_downtime_by_reason;   -- DROP i.p.v. REPLACE: kolommen kunnen anders niet tussengevoegd worden
 
 CREATE VIEW vw_oee_shift AS
 WITH actief AS (
@@ -147,8 +148,9 @@ FROM som s
 JOIN dim_date d USING (date_key)
 JOIN dim_installation i USING (installation_key);
 
-CREATE OR REPLACE VIEW vw_downtime_by_reason AS
-SELECT d.date_key, d.installation_key, d.reason_key,
+-- shift_key zit erin zodat een ploeg-slicer in Power BI ook de stilstand filtert.
+CREATE VIEW vw_downtime_by_reason AS
+SELECT d.date_key, d.shift_key, d.installation_key, d.reason_key,
        dt.datum, i.installation_code, r.reason_code, r.categorie, r.omschrijving,
        d.planned,
        count(*)                          AS aantal,
@@ -160,12 +162,12 @@ JOIN dim_date dt            USING (date_key)
 JOIN dim_installation i     USING (installation_key)
 JOIN dim_downtime_reason r  USING (reason_key)
 WHERE d.end_ts IS NOT NULL
-GROUP BY d.date_key, d.installation_key, d.reason_key,
+GROUP BY d.date_key, d.shift_key, d.installation_key, d.reason_key,
          dt.datum, i.installation_code, r.reason_code, r.categorie, r.omschrijving, d.planned;
 
 COMMENT ON VIEW vw_oee_shift          IS 'OEE-bouwstenen per dag x ploeg x installatie (minuten, tonnen, ratio''s).';
 COMMENT ON VIEW vw_daily_oee          IS 'OEE per dag x installatie. Tel minuten op en deel daarna; middel geen percentages.';
-COMMENT ON VIEW vw_downtime_by_reason IS 'Stilstand per dag x installatie x oorzaak x gepland.';
+COMMENT ON VIEW vw_downtime_by_reason IS 'Stilstand per dag x ploeg x installatie x oorzaak x gepland.';
 
 -- Views vallen onder de DEFAULT PRIVILEGES "ON TABLES" uit 01-roles.sh;
 -- voor de zekerheid nog eens expliciet:

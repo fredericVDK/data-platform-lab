@@ -91,7 +91,7 @@ data van gisteren bevat (`crontab -e`):
 | --- | --- | --- |
 | `dwh.vw_oee_shift` | dag × ploeg × installatie | bemande, geplande, loop- en ideale minuten; rollen, tonnen; beschikbaarheid, prestatie, kwaliteit, OEE |
 | `dwh.vw_daily_oee` | dag × installatie | idem, opgeteld per dag + datum, installatienaam, uitval % |
-| `dwh.vw_downtime_by_reason` | dag × installatie × oorzaak × gepland | aantal, minuten, gemiddelde en langste stop |
+| `dwh.vw_downtime_by_reason` | dag × ploeg × installatie × oorzaak × gepland | aantal, minuten, gemiddelde en langste stop |
 | `dwh.vw_etl_status` | run | status en tellingen van de ETL |
 
 OEE = beschikbaarheid × prestatie × kwaliteit:

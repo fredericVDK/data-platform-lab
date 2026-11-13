@@ -1,0 +1,100 @@
+// =====================================================================
+// measures.dax  -  Metingen voor het SteelLine-model (tabel _Metingen)
+// =====================================================================
+// Tabellen in het model:
+//   OEE        = dwh.vw_oee_shift          (dag x ploeg x installatie)
+//   Stilstand  = dwh.vw_downtime_by_reason (dag x ploeg x installatie x oorzaak)
+//
+// Regel: tel minuten en tonnen op, deel daarna. Middel nooit percentages.
+// OEE volgt exact dezelfde formule als de SQL-views, dus op dag x
+// installatie moet [OEE] gelijk zijn aan vw_daily_oee.oee.
+//
+// Kopiëren: Modelweergave -> _Metingen -> Nieuwe meting, of in de
+// DAX-queryweergave met DEFINE MEASURE ... en "Model bijwerken".
+// =====================================================================
+
+
+// ---- Bouwstenen (map: Basis) ------------------------------------------
+
+Bemande tijd (min) = SUM ( OEE[bemand_min] )
+
+Geplande tijd (min) = SUM ( OEE[gepland_min] )
+
+Looptijd (min) = SUM ( OEE[looptijd_min] )
+
+Ideale tijd (min) = SUM ( OEE[ideale_min] )
+
+Ton = SUM ( OEE[ton] )
+
+Ton goed = SUM ( OEE[ton_goed] )
+
+Rollen = SUM ( OEE[rollen] )
+
+Rollen defect = SUM ( OEE[rollen_defect] )
+
+
+// ---- OEE (map: OEE) ----------------------------------------------------
+
+Beschikbaarheid =
+DIVIDE ( [Looptijd (min)], [Geplande tijd (min)] )
+
+Prestatie =
+VAR _loop = [Looptijd (min)]
+RETURN
+    IF ( _loop > 0, MIN ( DIVIDE ( [Ideale tijd (min)], _loop ), 1 ) )
+
+Kwaliteit =
+DIVIDE ( [Ton goed], [Ton] )
+
+// Leeg als er geen geplande tijd was (hele ploeg onderhoud),
+// 0 als er wel gepland was maar niets gedraaid (bv. wachten op materiaal).
+OEE =
+VAR _gepland = [Geplande tijd (min)]
+VAR _loop    = [Looptijd (min)]
+RETURN
+    IF (
+        _gepland > 0,
+        DIVIDE ( _loop, _gepland )
+            * IF ( _loop > 0, MIN ( DIVIDE ( [Ideale tijd (min)], _loop ), 1 ), 0 )
+            * COALESCE ( DIVIDE ( [Ton goed], [Ton] ), 1 )
+    )
+
+Uitval % =
+DIVIDE ( [Rollen defect], [Rollen] )
+
+
+// ---- Onderhoud (map: Betrouwbaarheid) ----------------------------------
+
+Storingen = SUM ( OEE[storingen] )
+
+Stilstand ongepland (min) = SUM ( OEE[ongepland_min] )
+
+// Gemiddelde hersteltijd per storing
+MTTR (min) =
+DIVIDE ( [Stilstand ongepland (min)], [Storingen] )
+
+// Gemiddelde looptijd tussen twee storingen
+MTBF (min) =
+DIVIDE ( [Looptijd (min)], [Storingen] )
+
+
+// ---- Stilstand per oorzaak (map: Stilstand) ----------------------------
+// Deze metingen komen uit de tabel Stilstand en reageren dus ook op
+// Stilstandsoorzaak (categorie, reden). De metingen hierboven niet.
+
+Stilstand (min) = SUM ( Stilstand[minuten] )
+
+Stilstanden = SUM ( Stilstand[aantal] )
+
+Gem. duur stilstand (min) =
+DIVIDE ( [Stilstand (min)], [Stilstanden] )
+
+Aandeel in stilstand =
+DIVIDE (
+    [Stilstand (min)],
+    CALCULATE ( [Stilstand (min)], REMOVEFILTERS ( Stilstandsoorzaak ) )
+)
+
+// Controle: moet gelijk zijn aan [Stilstand ongepland (min)]
+Controle ongepland (min) =
+CALCULATE ( [Stilstand (min)], Stilstand[planned] = FALSE () )
