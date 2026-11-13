@@ -345,7 +345,11 @@ def push_kuma(totaal: Totaal, duur: float) -> None:
     try:
         urllib.request.urlopen(f"{url}?{query}", timeout=10).read()
     except Exception as e:  # monitoring mag de ETL nooit laten falen
-        log.warning("push naar Uptime Kuma mislukt: %s", e)
+        doel = urllib.parse.urlsplit(url)
+        log.warning("push naar Uptime Kuma (%s://%s) mislukt: %s", doel.scheme, doel.netloc, e)
+        if doel.hostname in ("127.0.0.1", "localhost", "::1"):
+            log.warning("in een container is %s de container zelf; gebruik de containernaam, "
+                        "bv. http://uptime-kuma:3001/api/push/<token>", doel.hostname)
 
 
 # ---------------------------------------------------------------------------
