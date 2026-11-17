@@ -64,14 +64,33 @@ DIVIDE ( [Rollen defect], [Rollen] )
 
 
 // ---- Onderhoud (map: Betrouwbaarheid) ----------------------------------
+// MTBF en MTTR gaan over het TOESTEL: alleen mechanische en elektrische
+// storingen. Wachten op materiaal, wissels, onderhoud en "onbekend" tellen
+// niet mee (week 9; in week 8 telde elke ongeplande stop mee, waardoor de
+// gloeioven door het wachten op rollen een MTTR van ~5 uur kreeg).
+// Deze metingen gebruiken de tabel Stilstand; ze staan hier omdat ze bij
+// elkaar horen.
 
-Storingen = SUM ( OEE[storingen] )
+Storingen =
+CALCULATE (
+    SUM ( Stilstand[aantal] ),
+    Stilstand[planned] = FALSE (),
+    Stilstandsoorzaak[categorie] IN { "mechanisch", "elektrisch" }
+)
 
+Storingsduur (min) =
+CALCULATE (
+    SUM ( Stilstand[minuten] ),
+    Stilstand[planned] = FALSE (),
+    Stilstandsoorzaak[categorie] IN { "mechanisch", "elektrisch" }
+)
+
+// Alle ongeplande stilstand: storingen, wachten, onbekend (voor OEE-verlies)
 Stilstand ongepland (min) = SUM ( OEE[ongepland_min] )
 
 // Gemiddelde hersteltijd per storing
 MTTR (min) =
-DIVIDE ( [Stilstand ongepland (min)], [Storingen] )
+DIVIDE ( [Storingsduur (min)], [Storingen] )
 
 // Gemiddelde looptijd tussen twee storingen
 MTBF (min) =
@@ -98,3 +117,121 @@ DIVIDE (
 // Controle: moet gelijk zijn aan [Stilstand ongepland (min)]
 Controle ongepland (min) =
 CALCULATE ( [Stilstand (min)], Stilstand[planned] = FALSE () )
+
+// =====================================================================
+// WEEK 9 - aanvullende metingen
+// =====================================================================
+// Productie, uitval, stilstand, MTBF/MTTR en OEE staan hierboven al (week 8).
+// Hieronder: productie en doorvoer, % ongepland, tijdvergelijkingen en
+// voortschrijdende gemiddelden.
+//
+// Voorwaarde voor de tijdvergelijkingen: Datum is gemarkeerd als datumtabel
+// op de kolom datum (README stap 5). Dan haalt Power BI bij DATEADD en
+// DATESINPERIOD zelf alle filters op Datum weg (ook een slicer op maand).
+
+
+// ---- Productie (map: Productie) ----------------------------------------
+
+Productie (t) = [Ton]
+
+// Draaiuren = looptijd: de tijd dat de installatie gepland was en niet stillag.
+Draaiuren (u) = DIVIDE ( [Looptijd (min)], 60 )
+
+Doorvoer (t/u) = DIVIDE ( [Productie (t)], [Draaiuren (u)] )
+
+
+// ---- Stilstand (map: Stilstand) ----------------------------------------
+
+Stilstand ongepland oorzaak (min) =
+CALCULATE ( [Stilstand (min)], Stilstand[planned] = FALSE () )
+
+// Aandeel ongeplande minuten in alle stilstand (geplande wissels en onderhoud meegeteld).
+% ongepland =
+DIVIDE ( [Stilstand ongepland oorzaak (min)], [Stilstand (min)] )
+
+
+// ---- Tijdvergelijkingen (map: Vergelijking) ----------------------------
+// Patroon: dezelfde meting, verschoven met DATEADD. Werkt voor elke
+// periode in de visual of slicer: een dag, een week, een maand.
+// Percentages (OEE, uitval) vergelijk je in procentpunten (pp), niet in
+// "% verschil": van 60 % naar 66 % is +6 pp, niet +10 %.
+
+OEE vorige week =
+CALCULATE ( [OEE], DATEADD ( Datum[datum], -7, DAY ) )
+
+OEE vorige maand =
+CALCULATE ( [OEE], DATEADD ( Datum[datum], -1, MONTH ) )
+
+OEE verschil vs vorige maand (pp) =
+VAR _nu = [OEE]
+VAR _toen = [OEE vorige maand]
+RETURN IF ( NOT ISBLANK ( _nu ) && NOT ISBLANK ( _toen ), _nu - _toen )
+
+Productie vorige week (t) =
+CALCULATE ( [Productie (t)], DATEADD ( Datum[datum], -7, DAY ) )
+
+Productie vorige maand (t) =
+CALCULATE ( [Productie (t)], DATEADD ( Datum[datum], -1, MONTH ) )
+
+Productie % verschil vs vorige week =
+DIVIDE ( [Productie (t)] - [Productie vorige week (t)], [Productie vorige week (t)] )
+
+Productie % verschil vs vorige maand =
+DIVIDE ( [Productie (t)] - [Productie vorige maand (t)], [Productie vorige maand (t)] )
+
+Uitval % vorige maand =
+CALCULATE ( [Uitval %], DATEADD ( Datum[datum], -1, MONTH ) )
+
+Uitval verschil vs vorige maand (pp) =
+VAR _nu = [Uitval %]
+VAR _toen = [Uitval % vorige maand]
+RETURN IF ( NOT ISBLANK ( _nu ) && NOT ISBLANK ( _toen ), _nu - _toen )
+
+Stilstand ongepland vorige maand (min) =
+CALCULATE ( [Stilstand ongepland (min)], DATEADD ( Datum[datum], -1, MONTH ) )
+
+Stilstand ongepland % verschil vs vorige maand =
+DIVIDE (
+    [Stilstand ongepland (min)] - [Stilstand ongepland vorige maand (min)],
+    [Stilstand ongepland vorige maand (min)]
+)
+
+// Zelfde periode vorig jaar: pas zinvol vanaf 13 maanden historiek.
+OEE vorig jaar =
+CALCULATE ( [OEE], SAMEPERIODLASTYEAR ( Datum[datum] ) )
+
+
+// ---- Voortschrijdend 7 dagen (map: Trend) ------------------------------
+// Voor een lijngrafiek per dag: dempt het weekritme (weekend, onderhoud).
+// OEE 7d is GEWOGEN: minuten en tonnen van 7 dagen samen, dan delen.
+// Leeg op dagen zonder data, zodat de lijn niet tot vandaag doorloopt.
+
+OEE 7d =
+IF (
+    NOT ISBLANK ( [Rollen] ),
+    CALCULATE ( [OEE], DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ) )
+)
+
+Productie 7d gem. (t/dag) =
+IF (
+    NOT ISBLANK ( [Rollen] ),
+    AVERAGEX (
+        DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ),
+        [Productie (t)]
+    )
+)
+
+Stilstand ongepland 7d gem. (min/dag) =
+IF (
+    NOT ISBLANK ( [Rollen] ),
+    AVERAGEX (
+        DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ),
+        [Stilstand ongepland (min)]
+    )
+)
+
+Uitval % 7d =
+IF (
+    NOT ISBLANK ( [Rollen] ),
+    CALCULATE ( [Uitval %], DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ) )
+)

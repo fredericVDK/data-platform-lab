@@ -161,7 +161,95 @@ Lukt *.pbip* niet in jouw versie: **Bestand → Opties → Preview-functies → 
 
 ---
 
-## Volgende weken (overzicht)
+## Week 9 — DAX-metingen
 
-- **Week 9** — pagina's: *Overzicht* (OEE-kaarten + trend per installatie), *Stilstand* (Pareto per oorzaak, MTTR/MTBF), *Kwaliteit* (`fact_production` + `dim_steel_grade`), *Ploegen*.
-- **Week 10** — afwerking: thema, tooltips, drill-through naar dag × installatie, screenshots in deze map, publiceren of als PDF in de README.
+**Voorwaarde:** week 8 staat (model met relaties, `Datum` gemarkeerd, de metingen van week 8 in **_Metingen**).
+
+### Status
+
+- [ ] Productie, doorvoer en uitval %
+- [ ] Stilstand, % ongepland, MTBF / MTTR (nieuwe definitie)
+- [ ] OEE
+- [ ] Tijdvergelijkingen en voortschrijdend gemiddelde
+- [ ] Gecontroleerd met [`controle_week9.sql`](controle_week9.sql)
+- [ ] `.pbip` opgeslagen en gecommit
+
+### 1. Metingen toevoegen
+
+Alle metingen staan in [`measures.dax`](measures.dax): bovenaan die van week 8, onderaan het blok **WEEK 9**.
+Snelste manier: **DAX-queryweergave** → nieuw tabblad → plak
+
+```dax
+DEFINE
+    MEASURE _Metingen[Productie (t)] = [Ton]
+    MEASURE _Metingen[Draaiuren (u)] = DIVIDE ( [Looptijd (min)], 60 )
+    -- ... (zet "MEASURE _Metingen[" voor elke naam uit measures.dax)
+EVALUATE {1}
+```
+
+en klik op **Model bijwerken met wijzigingen**. Of één voor één: **_Metingen → Nieuwe meting**.
+
+| Map (*Weergavemap*) | Metingen | Formaat |
+| --- | --- | --- |
+| Productie | Productie (t), Draaiuren (u), Doorvoer (t/u) | geheel getal / 1 decimaal |
+| Kwaliteit | Uitval % (week 8) | percentage, 2 decimalen |
+| OEE | OEE, Beschikbaarheid, Prestatie, Kwaliteit (week 8) | percentage, 1 decimaal |
+| Betrouwbaarheid | Storingen, Storingsduur (min), MTTR (min), MTBF (min) | geheel getal |
+| Stilstand | Stilstand (min), Stilstand ongepland (min), Stilstand ongepland oorzaak (min), % ongepland | geheel getal / percentage |
+| Vergelijking | … vorige week, … vorige maand, … verschil (pp), … % verschil, OEE vorig jaar | zoals de basismeting; pp en % verschil met teken (`+0.0%;-0.0%;0.0%`) |
+| Trend | OEE 7d, Uitval % 7d, Productie 7d gem. (t/dag), Stilstand ongepland 7d gem. (min/dag) | zoals de basismeting |
+| Basis (verbergen) | Ton, Rollen, Looptijd (min), … | — |
+
+### 2. Wat er veranderd is tegenover week 8
+
+**MTBF en MTTR** gaan nu alleen over echte storingen: mechanisch en elektrisch. In week 8 telde elke ongeplande stop mee, ook *wachten op materiaal*. De gloeioven kreeg daardoor een MTTR van bijna 5 uur, terwijl hij gewoon op rollen wachtte. Nu (testdata, één maand):
+
+| Installatie | MTTR oud | MTTR nieuw | MTBF nieuw |
+| --- | --- | --- | --- |
+| WW1 | 36 min | 40 min | 13 u |
+| BL1 | 93 min | 40 min | 24 u |
+| KW1 | 117 min | 49 min | 18 u |
+| GO1 | 289 min | 11 min | 125 u |
+
+Had je de metingen van week 8 al geplakt: vervang de formules van **Storingen**, **MTTR (min)** en **MTBF (min)** door die uit `measures.dax`, en voeg **Storingsduur (min)** toe. Visuals blijven werken, want de namen zijn dezelfde.
+
+### 3. De keuzes achter de metingen
+
+- **Doorvoer = ton ÷ draaiuren**, en draaiuren = looptijd: de tijd dat een installatie gepland was en niet stillag. Zo meet doorvoer hoe snel er gewerkt wordt wanneer er gewerkt wordt.
+- **% ongepland** komt uit de tabel *Stilstand* en reageert dus op een slicer op oorzaak of categorie.
+- **Procentpunten, geen procenten.** OEE van 60 % naar 66 % is **+6 pp**, niet +10 %. Voor percentages staan er `… verschil (pp)`-metingen, voor tonnen en minuten `… % verschil`.
+- **DATEADD** verschuift de geselecteerde periode: met maand november in de slicer vergelijkt hij met oktober, met 1–16 november met 1–16 oktober. Daarvoor moet `Datum` gemarkeerd zijn (week 8, stap 5).
+- **OEE 7d is gewogen:** de minuten en tonnen van 7 dagen samen, dan delen. Een gemiddelde van 7 dag-OEE's zou een zondag met één ploeg even zwaar laten wegen als een volle werkdag.
+- De **7d-metingen zijn leeg op dagen zonder data**, zodat een trendlijn niet tot vandaag doorzakt naar nul.
+- **Vorig jaar** (`SAMEPERIODLASTYEAR`) geeft pas iets vanaf 13 maanden historiek.
+
+### 4. Controleren
+
+Voer [`controle_week9.sql`](controle_week9.sql) uit (DBeaver als `bi_reader`, of op de server):
+
+```bash
+docker exec -i postgres psql -U bi_reader -d steelline -f - < powerbi/controle_week9.sql
+```
+
+Elke query zegt welke visual en welke slicer je in Power BI moet zetten. De getallen moeten gelijk zijn, op afronding na:
+
+1. vorige maand per installatie: productie, draaiuren, doorvoer, uitval %, storingen, MTBF, MTTR, OEE;
+2. % ongepland per installatie;
+3. deze maand tot gisteren tegenover dezelfde dagen vorige maand;
+4. OEE 7d voor de laatste 10 dagen.
+
+### 5. Opslaan
+
+```powershell
+cd $env:USERPROFILE\Desktop\data-platform-lab
+git add powerbi
+git commit -m "Fase3: DAX-metingen week 9 in het model"
+git push
+```
+
+---
+
+## Week 10 (overzicht)
+
+Pagina's *Overzicht*, *Stilstand* (Pareto, drill-down), *Kwaliteit* en een drill-through per installatie; slicers, tooltips, vaste kleuren; screenshots en een korte schermopname.
+Voor *Kwaliteit* (dikte tegenover doel, uitval per staalsoort) komen `fact_production` en `dim_steel_grade` erbij in het model.
