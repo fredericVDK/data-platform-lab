@@ -24,9 +24,16 @@ SUMS="$BACKUP_DIR/SHA256SUMS_${STAMP}"
 
 log()  { echo "$(date '+%F %T') $*"; }
 push() {  # meld de status aan een Uptime Kuma push-monitor (optioneel)
-  [[ -n "${KUMA_PUSH_URL:-}" ]] || return 0
-  curl -fsS -m 10 --get --data-urlencode "status=$1" --data-urlencode "msg=$2" \
-       "$KUMA_PUSH_URL" >/dev/null || log "WAARSCHUWING: Uptime Kuma niet bereikbaar"
+  if [[ -z "${KUMA_PUSH_URL:-}" ]]; then
+    log "LET OP: KUMA_PUSH_URL is leeg in $SCRIPT_DIR/.env, geen melding naar Uptime Kuma"
+    return 0
+  fi
+  local url="${KUMA_PUSH_URL%%\?*}"   # een gekopieerde "?status=up&msg=OK&ping=" weglaten
+  if curl -fsS -m 10 --get --data-urlencode "status=$1" --data-urlencode "msg=$2" "$url" >/dev/null; then
+    log "Uptime Kuma: $1 gemeld"
+  else
+    log "WAARSCHUWING: Uptime Kuma niet bereikbaar op ${url%/api/*} (host 127.0.0.1:3001 gebruiken)"
+  fi
 }
 fail() { trap - ERR; log "FOUT: $*"; push down "$*"; rm -f "$BACKUP_DIR"/*.part; exit 1; }
 trap 'fail "regel $LINENO: $BASH_COMMAND"' ERR
