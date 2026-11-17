@@ -117,7 +117,7 @@ Sorteren (kolom selecteren → *Kolomhulpmiddelen → Sorteren op kolom*):
 | Datum[`maand_naam`] | `maand` |
 | Datum[`dag_naam`] | `dag_van_week` |
 | Ploeg[`ploeg`] en [`shift_code`] | `shift_key` (vroeg → laat → nacht) |
-| Installatie[`naam`] | `volgorde_in_lijn` (eerst op `lijn` in de visual) |
+| Installatie[`naam`] en [`installation_code`] | `installation_key` (WW1 → BL1 → KW1 → GO1, de volgorde van de lijn) |
 
 ### 5. Datumtabel
 
