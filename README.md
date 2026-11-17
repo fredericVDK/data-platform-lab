@@ -56,7 +56,7 @@ data-platform-lab/
 
 - [ ] **Fase 0** – Voorbereiding: repo, werkomgeving, README
 - [ ] **Fase 1** – Homelab: Linux-server, Docker, PostgreSQL, monitoring, back-ups
-- [ ] **Fase 2** – Datagenerator, sterschema en nachtelijke ETL
+- [x] **Fase 2** – Datagenerator, sterschema en nachtelijke ETL
 - [ ] **Fase 3** – Power BI-dashboard (OEE, stilstand, kwaliteit)
 - [ ] **Fase 4** – C#-webapp voor stilstandregistratie
 - [ ] **Fase 5** – AI: anomaliedetectie en text-to-SQL-chatbot
