@@ -21,7 +21,7 @@ table _Metingen
 		displayFolder: Basis
 		lineageTag: fd9d59c7-2c1a-599c-97e8-815f6927f9b6
 
-	measure 'Ton' = SUM ( OEE[ton] )
+	measure Ton = SUM ( OEE[ton] )
 		formatString: #,0
 		displayFolder: Basis
 		lineageTag: 305fd13b-6a9b-5910-a2db-3afc68f3dede
@@ -31,7 +31,7 @@ table _Metingen
 		displayFolder: Basis
 		lineageTag: 4edb539e-3265-58b7-b37c-6bc3532b2dd7
 
-	measure 'Rollen' = SUM ( OEE[rollen] )
+	measure Rollen = SUM ( OEE[rollen] )
 		formatString: #,0
 		displayFolder: Basis
 		lineageTag: 1896f49f-f410-5249-906c-aaeff7428b41
@@ -41,12 +41,12 @@ table _Metingen
 		displayFolder: Basis
 		lineageTag: f6d16008-453a-5989-a9dd-9f492d32c71d
 
-	measure 'Beschikbaarheid' = DIVIDE ( [Looptijd (min)], [Geplande tijd (min)] )
+	measure Beschikbaarheid = DIVIDE ( [Looptijd (min)], [Geplande tijd (min)] )
 		formatString: 0.0%
 		displayFolder: OEE
 		lineageTag: 1e72483f-d7b8-57f1-85e9-1388ade2ba65
 
-	measure 'Prestatie' =
+	measure Prestatie =
 			VAR _loop = [Looptijd (min)]
 			RETURN
 			    IF ( _loop > 0, MIN ( DIVIDE ( [Ideale tijd (min)], _loop ), 1 ) )
@@ -54,12 +54,12 @@ table _Metingen
 		displayFolder: OEE
 		lineageTag: 4d0dedfd-2327-58a5-9583-45d8bdd7f881
 
-	measure 'Kwaliteit' = DIVIDE ( [Ton goed], [Ton] )
+	measure Kwaliteit = DIVIDE ( [Ton goed], [Ton] )
 		formatString: 0.0%
 		displayFolder: OEE
 		lineageTag: d24277be-a779-563a-ba02-edf35aba6e30
 
-	measure 'OEE' =
+	measure OEE =
 			VAR _gepland = [Geplande tijd (min)]
 			VAR _loop    = [Looptijd (min)]
 			RETURN
@@ -78,7 +78,7 @@ table _Metingen
 		displayFolder: OEE
 		lineageTag: 6124361b-4766-5ae1-8c16-2f67e045b911
 
-	measure 'Storingen' =
+	measure Storingen =
 			CALCULATE (
 			    SUM ( Stilstand[aantal] ),
 			    Stilstand[planned] = FALSE (),
@@ -118,7 +118,7 @@ table _Metingen
 		displayFolder: Stilstand
 		lineageTag: 390e4de6-5176-511e-8201-fe359179cbe6
 
-	measure 'Stilstanden' = SUM ( Stilstand[aantal] )
+	measure Stilstanden = SUM ( Stilstand[aantal] )
 		formatString: #,0
 		displayFolder: Stilstand
 		lineageTag: 5992465d-9042-5587-a332-b42cbb631f04
@@ -298,3 +298,4 @@ table _Metingen
 				    #"Changed Type"
 
 	annotation PBI_ResultType = Table
+
