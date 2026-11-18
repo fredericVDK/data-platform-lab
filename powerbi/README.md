@@ -12,7 +12,7 @@ Deze map bevat het rapport als **Power BI-project** (`.pbip`), zodat het in Git 
 - [x] 4 dimensies + 2 views geïmporteerd en opgeschoond in Power Query
 - [x] Relaties: sterstructuur, één-op-veel, enkelvoudige filterrichting
 - [x] `Datum` gemarkeerd als datumtabel, automatische datum/tijd uit
-- [ ] Basismetingen (OEE, stilstand) toegevoegd en gecontroleerd tegen SQL
+- [x] Basismetingen (OEE, stilstand) toegevoegd en gecontroleerd tegen SQL
 - [x] Opgeslagen als `powerbi/steelline.pbip` en gecommit
 
 ---
@@ -171,7 +171,7 @@ Lukt *.pbip* niet in jouw versie: **Bestand → Opties → Preview-functies → 
 - [x] Stilstand, % ongepland, MTBF / MTTR (nieuwe definitie)
 - [x] OEE
 - [x] Tijdvergelijkingen en voortschrijdend gemiddelde
-- [ ] Gecontroleerd met [`controle_week9.sql`](controle_week9.sql)
+- [x] Gecontroleerd met [`controle_week9.sql`](controle_week9.sql)
 - [x] Metingen staan in `steelline.SemanticModel/definition/tables/_Metingen.tmdl` (44, met mappen en opmaak)
 
 ### 1. Metingen toevoegen
