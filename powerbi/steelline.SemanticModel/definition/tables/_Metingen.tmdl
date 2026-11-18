@@ -2,12 +2,286 @@ table _Metingen
 	lineageTag: 2dcfd495-de29-46bd-beb7-6ed0117bddb5
 
 	measure 'Bemande tijd (min)' = SUM ( OEE[bemand_min] )
+		formatString: #,0
+		displayFolder: Basis
 		lineageTag: 99b284c9-2946-4995-aa86-7031c05a7788
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+	measure 'Geplande tijd (min)' = SUM ( OEE[gepland_min] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: 8ae80ac1-9afd-5291-92cf-6d6175c8f2f4
+
+	measure 'Looptijd (min)' = SUM ( OEE[looptijd_min] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: b4f06c75-5d02-52a5-8a16-f0a743c5df34
+
+	measure 'Ideale tijd (min)' = SUM ( OEE[ideale_min] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: fd9d59c7-2c1a-599c-97e8-815f6927f9b6
+
+	measure 'Ton' = SUM ( OEE[ton] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: 305fd13b-6a9b-5910-a2db-3afc68f3dede
+
+	measure 'Ton goed' = SUM ( OEE[ton_goed] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: 4edb539e-3265-58b7-b37c-6bc3532b2dd7
+
+	measure 'Rollen' = SUM ( OEE[rollen] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: 1896f49f-f410-5249-906c-aaeff7428b41
+
+	measure 'Rollen defect' = SUM ( OEE[rollen_defect] )
+		formatString: #,0
+		displayFolder: Basis
+		lineageTag: f6d16008-453a-5989-a9dd-9f492d32c71d
+
+	measure 'Beschikbaarheid' = DIVIDE ( [Looptijd (min)], [Geplande tijd (min)] )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: 1e72483f-d7b8-57f1-85e9-1388ade2ba65
+
+	measure 'Prestatie' =
+			VAR _loop = [Looptijd (min)]
+			RETURN
+			    IF ( _loop > 0, MIN ( DIVIDE ( [Ideale tijd (min)], _loop ), 1 ) )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: 4d0dedfd-2327-58a5-9583-45d8bdd7f881
+
+	measure 'Kwaliteit' = DIVIDE ( [Ton goed], [Ton] )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: d24277be-a779-563a-ba02-edf35aba6e30
+
+	measure 'OEE' =
+			VAR _gepland = [Geplande tijd (min)]
+			VAR _loop    = [Looptijd (min)]
+			RETURN
+			    IF (
+			        _gepland > 0,
+			        DIVIDE ( _loop, _gepland )
+			            * IF ( _loop > 0, MIN ( DIVIDE ( [Ideale tijd (min)], _loop ), 1 ), 0 )
+			            * COALESCE ( DIVIDE ( [Ton goed], [Ton] ), 1 )
+			    )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: f1b5ceb6-d60e-5752-b6ed-96b9428c86ee
+
+	measure 'Uitval %' = DIVIDE ( [Rollen defect], [Rollen] )
+		formatString: 0.00%
+		displayFolder: OEE
+		lineageTag: 6124361b-4766-5ae1-8c16-2f67e045b911
+
+	measure 'Storingen' =
+			CALCULATE (
+			    SUM ( Stilstand[aantal] ),
+			    Stilstand[planned] = FALSE (),
+			    Stilstandoorzaak[categorie] IN { "mechanisch", "elektrisch" }
+			)
+		formatString: #,0
+		displayFolder: Betrouwbaarheid
+		lineageTag: ff02c0cf-be0b-5548-be88-ec5af8c41242
+
+	measure 'Storingsduur (min)' =
+			CALCULATE (
+			    SUM ( Stilstand[minuten] ),
+			    Stilstand[planned] = FALSE (),
+			    Stilstandoorzaak[categorie] IN { "mechanisch", "elektrisch" }
+			)
+		formatString: #,0
+		displayFolder: Betrouwbaarheid
+		lineageTag: 11bf101f-b4dd-5d49-9dbd-a1f70847a9cd
+
+	measure 'Stilstand ongepland (min)' = SUM ( OEE[ongepland_min] )
+		formatString: #,0
+		displayFolder: Betrouwbaarheid
+		lineageTag: 04b8a65c-50cc-55a4-9806-1400f6dedcde
+
+	measure 'MTTR (min)' = DIVIDE ( [Storingsduur (min)], [Storingen] )
+		formatString: #,0.0
+		displayFolder: Betrouwbaarheid
+		lineageTag: 8533daff-659f-5ff2-bb03-672e59c663bc
+
+	measure 'MTBF (min)' = DIVIDE ( [Looptijd (min)], [Storingen] )
+		formatString: #,0
+		displayFolder: Betrouwbaarheid
+		lineageTag: 93c85410-7a09-5d71-91a5-326f8ba2bcab
+
+	measure 'Stilstand (min)' = SUM ( Stilstand[minuten] )
+		formatString: #,0
+		displayFolder: Stilstand
+		lineageTag: 390e4de6-5176-511e-8201-fe359179cbe6
+
+	measure 'Stilstanden' = SUM ( Stilstand[aantal] )
+		formatString: #,0
+		displayFolder: Stilstand
+		lineageTag: 5992465d-9042-5587-a332-b42cbb631f04
+
+	measure 'Gem. duur stilstand (min)' = DIVIDE ( [Stilstand (min)], [Stilstanden] )
+		formatString: #,0.0
+		displayFolder: Stilstand
+		lineageTag: e357cd7c-e338-59d5-a696-6878754fa31f
+
+	measure 'Aandeel in stilstand' =
+			DIVIDE (
+			    [Stilstand (min)],
+			    CALCULATE ( [Stilstand (min)], REMOVEFILTERS ( Stilstandoorzaak ) )
+			)
+		formatString: 0.0%
+		displayFolder: Stilstand
+		lineageTag: 1bf6e550-fb4b-58f7-8d74-eb442b85cfba
+
+	measure 'Controle ongepland (min)' = CALCULATE ( [Stilstand (min)], Stilstand[planned] = FALSE () )
+		formatString: #,0
+		displayFolder: Stilstand
+		lineageTag: 581ecd42-b178-5229-825f-dd4c3c49ede9
+
+	measure 'Productie (t)' = [Ton]
+		formatString: #,0
+		displayFolder: Productie
+		lineageTag: 82f17265-355d-5a02-9775-6a0d2de62d05
+
+	measure 'Draaiuren (u)' = DIVIDE ( [Looptijd (min)], 60 )
+		formatString: #,0.0
+		displayFolder: Productie
+		lineageTag: 71a335ed-a576-5fe2-8fa9-687d5a0e42d1
+
+	measure 'Doorvoer (t/u)' = DIVIDE ( [Productie (t)], [Draaiuren (u)] )
+		formatString: #,0.0
+		displayFolder: Productie
+		lineageTag: d61b567f-8d99-5cef-840b-073d8646da20
+
+	measure 'Stilstand ongepland oorzaak (min)' = CALCULATE ( [Stilstand (min)], Stilstand[planned] = FALSE () )
+		formatString: #,0
+		displayFolder: Stilstand
+		lineageTag: e0acae4f-649a-5475-a7d3-b451508eb9db
+
+	measure '% ongepland' = DIVIDE ( [Stilstand ongepland oorzaak (min)], [Stilstand (min)] )
+		formatString: 0.0%
+		displayFolder: Stilstand
+		lineageTag: ad54998e-7186-545c-ba0e-c5f467941c5f
+
+	measure 'OEE vorige week' = CALCULATE ( [OEE], DATEADD ( Datum[datum], -7, DAY ) )
+		formatString: 0.0%
+		displayFolder: Vergelijking
+		lineageTag: 123f1a2a-1ac3-58d9-a812-c965d368cd6d
+
+	measure 'OEE vorige maand' = CALCULATE ( [OEE], DATEADD ( Datum[datum], -1, MONTH ) )
+		formatString: 0.0%
+		displayFolder: Vergelijking
+		lineageTag: 2618fe50-f1f9-52bc-8a28-2400324299a8
+
+	measure 'OEE verschil vs vorige maand (pp)' =
+			VAR _nu = [OEE]
+			VAR _toen = [OEE vorige maand]
+			RETURN IF ( NOT ISBLANK ( _nu ) && NOT ISBLANK ( _toen ), _nu - _toen )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Vergelijking
+		lineageTag: 51a49779-84e6-54f3-96ec-9435fddfe46a
+
+	measure 'Productie vorige week (t)' = CALCULATE ( [Productie (t)], DATEADD ( Datum[datum], -7, DAY ) )
+		formatString: #,0
+		displayFolder: Vergelijking
+		lineageTag: cad85b75-b6e3-51fc-bb6c-2dfdc96f1ebf
+
+	measure 'Productie vorige maand (t)' = CALCULATE ( [Productie (t)], DATEADD ( Datum[datum], -1, MONTH ) )
+		formatString: #,0
+		displayFolder: Vergelijking
+		lineageTag: 3915a681-03ac-5f3c-8783-b1391692610b
+
+	measure 'Productie % verschil vs vorige week' = DIVIDE ( [Productie (t)] - [Productie vorige week (t)], [Productie vorige week (t)] )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Vergelijking
+		lineageTag: 1be19f6a-d6cf-52bc-afdd-5b8264eaa47f
+
+	measure 'Productie % verschil vs vorige maand' = DIVIDE ( [Productie (t)] - [Productie vorige maand (t)], [Productie vorige maand (t)] )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Vergelijking
+		lineageTag: cfe51926-72a8-5b5c-98f5-1ad28e474504
+
+	measure 'Uitval % vorige maand' = CALCULATE ( [Uitval %], DATEADD ( Datum[datum], -1, MONTH ) )
+		formatString: 0.00%
+		displayFolder: Vergelijking
+		lineageTag: 53b7b3b5-f7a0-58f8-ae0e-a2758734d8aa
+
+	measure 'Uitval verschil vs vorige maand (pp)' =
+			VAR _nu = [Uitval %]
+			VAR _toen = [Uitval % vorige maand]
+			RETURN IF ( NOT ISBLANK ( _nu ) && NOT ISBLANK ( _toen ), _nu - _toen )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Vergelijking
+		lineageTag: fac3ac07-39be-5896-90d6-a58a2cc2c2ad
+
+	measure 'Stilstand ongepland vorige maand (min)' = CALCULATE ( [Stilstand ongepland (min)], DATEADD ( Datum[datum], -1, MONTH ) )
+		formatString: #,0
+		displayFolder: Vergelijking
+		lineageTag: 84e9f84b-6272-53cf-99dc-4228235285c2
+
+	measure 'Stilstand ongepland % verschil vs vorige maand' =
+			DIVIDE (
+			    [Stilstand ongepland (min)] - [Stilstand ongepland vorige maand (min)],
+			    [Stilstand ongepland vorige maand (min)]
+			)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Vergelijking
+		lineageTag: 1e3d5100-0756-5071-a6dd-4077c777a78e
+
+	measure 'OEE vorig jaar' = CALCULATE ( [OEE], SAMEPERIODLASTYEAR ( Datum[datum] ) )
+		formatString: 0.0%
+		displayFolder: Vergelijking
+		lineageTag: 6e24bdc6-d6fe-5e25-b8dd-d24098fe1ab1
+
+	measure 'OEE 7d' =
+			IF (
+			    NOT ISBLANK ( [Rollen] ),
+			    CALCULATE ( [OEE], DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ) )
+			)
+		formatString: 0.0%
+		displayFolder: Trend
+		lineageTag: f5801d72-6761-550c-98ed-ced687c2fda6
+
+	measure 'Productie 7d gem. (t/dag)' =
+			IF (
+			    NOT ISBLANK ( [Rollen] ),
+			    AVERAGEX (
+			        DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ),
+			        [Productie (t)]
+			    )
+			)
+		formatString: #,0
+		displayFolder: Trend
+		lineageTag: ea105b1a-299a-58a7-8200-2ca3313f0f76
+
+	measure 'Stilstand ongepland 7d gem. (min/dag)' =
+			IF (
+			    NOT ISBLANK ( [Rollen] ),
+			    AVERAGEX (
+			        DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ),
+			        [Stilstand ongepland (min)]
+			    )
+			)
+		formatString: #,0
+		displayFolder: Trend
+		lineageTag: 8f025409-cd16-579d-b27b-b57a9fd67e7c
+
+	measure 'Uitval % 7d' =
+			IF (
+			    NOT ISBLANK ( [Rollen] ),
+			    CALCULATE ( [Uitval %], DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ) )
+			)
+		formatString: 0.00%
+		displayFolder: Trend
+		lineageTag: c59cf32d-0175-52e5-8d40-76eec1d9025d
 
 	column Column1
 		dataType: string
+		isHidden
 		lineageTag: b6bf36a8-5184-4999-a80d-d55561d41d4e
 		summarizeBy: none
 		sourceColumn: Column1
@@ -24,4 +298,3 @@ table _Metingen
 				    #"Changed Type"
 
 	annotation PBI_ResultType = Table
-

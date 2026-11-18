@@ -29,6 +29,7 @@ table Ploeg
 		lineageTag: a7f2809b-6626-46e1-aac3-2f127752fd0c
 		summarizeBy: none
 		sourceColumn: ploeg
+		sortByColumn: shift_key
 
 		changedProperty = SortByColumn
 

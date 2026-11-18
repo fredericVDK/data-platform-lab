@@ -29,7 +29,7 @@ table Installatie
 		lineageTag: 398ee0be-86ae-493d-82a4-54e0450ba3a2
 		summarizeBy: none
 		sourceColumn: naam
-		sortByColumn: installation_code
+		sortByColumn: installation_key
 
 		changedProperty = SortByColumn
 
