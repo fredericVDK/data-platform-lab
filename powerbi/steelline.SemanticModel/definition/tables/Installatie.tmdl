@@ -1,0 +1,94 @@
+table Installatie
+	lineageTag: 8bb91d36-0069-4f07-aa15-17d123264c13
+
+	column installation_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cf02fce1-900d-4a29-a703-d65249164ebf
+		summarizeBy: none
+		sourceColumn: installation_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column installation_code
+		dataType: string
+		lineageTag: c59468b3-eca9-44ed-a4b4-69f4886664ab
+		summarizeBy: none
+		sourceColumn: installation_code
+		sortByColumn: installation_key
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column naam
+		dataType: string
+		lineageTag: 398ee0be-86ae-493d-82a4-54e0450ba3a2
+		summarizeBy: none
+		sourceColumn: naam
+		sortByColumn: installation_code
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column soort
+		dataType: string
+		lineageTag: 85dafef7-4c8a-4f65-81d8-99f9d93bc8a0
+		summarizeBy: none
+		sourceColumn: soort
+
+		annotation SummarizationSetBy = Automatic
+
+	column lijn
+		dataType: string
+		lineageTag: 9f75e464-7c31-4a24-85e1-a3e9a38e7690
+		summarizeBy: none
+		sourceColumn: lijn
+
+		annotation SummarizationSetBy = Automatic
+
+	column volgorde_in_lijn
+		dataType: int64
+		formatString: 0
+		lineageTag: 75d94ca7-daf9-4405-9c06-e4c5f18a11ca
+		summarizeBy: sum
+		sourceColumn: volgorde_in_lijn
+
+		annotation SummarizationSetBy = Automatic
+
+	column capaciteit_t_per_uur
+		dataType: double
+		lineageTag: b6e31b1e-3608-4eb2-ae9b-13e23d904d70
+		summarizeBy: sum
+		sourceColumn: capaciteit_t_per_uur
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column actief
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 65188993-aad3-46cb-9089-13c0181b5244
+		summarizeBy: none
+		sourceColumn: actief
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Installatie = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_dim_installation = Source{[Schema="dwh",Item="dim_installation"]}[Data]
+				in
+				    dwh_dim_installation
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

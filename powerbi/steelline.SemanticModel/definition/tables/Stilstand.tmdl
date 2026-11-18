@@ -1,0 +1,93 @@
+table Stilstand
+	lineageTag: 22a2b5ae-66e7-4e00-b29a-9c17ce7ee6ea
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f3af2d25-0eb5-4298-b4b4-7f361676428b
+		summarizeBy: none
+		sourceColumn: date_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column installation_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 32bd20e7-665c-4ed5-af5a-07e249c4bd94
+		summarizeBy: none
+		sourceColumn: installation_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column reason_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 158d2593-afbb-4cbb-a880-3e3b09bd0d84
+		summarizeBy: none
+		sourceColumn: reason_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column planned
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e5458d41-cb24-48cd-9f8a-360ca52ff21c
+		summarizeBy: none
+		sourceColumn: planned
+
+		annotation SummarizationSetBy = Automatic
+
+	column aantal
+		dataType: int64
+		formatString: 0
+		lineageTag: f73c5069-3d24-493b-98fc-db99797ec3fa
+		summarizeBy: sum
+		sourceColumn: aantal
+
+		annotation SummarizationSetBy = Automatic
+
+	column minuten
+		dataType: double
+		lineageTag: 7873868c-d26e-4335-a043-a4c292d42d4d
+		summarizeBy: sum
+		sourceColumn: minuten
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column shift_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c4c30027-b5c1-49f2-b405-8a39d2a340d8
+		summarizeBy: none
+		sourceColumn: shift_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Stilstand = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_vw_downtime_by_reason = Source{[Schema="dwh",Item="vw_downtime_by_reason"]}[Data],
+				    #"Removed Columns" = Table.RemoveColumns(dwh_vw_downtime_by_reason,{"datum", "installation_code", "reason_code", "categorie", "omschrijving", "gem_minuten", "max_minuten"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

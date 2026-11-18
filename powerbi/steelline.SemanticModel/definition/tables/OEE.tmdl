@@ -1,0 +1,180 @@
+table OEE
+	lineageTag: 55a47745-c6c1-4230-90f6-a5151804f1e6
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 99482f82-b026-476d-b2c5-8aac91102e8b
+		summarizeBy: none
+		sourceColumn: date_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d7613fec-1c06-4396-bb05-3687835e7db9
+		summarizeBy: none
+		sourceColumn: shift_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column installation_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5e6699b-ded6-4255-a121-e93d27fbf28e
+		summarizeBy: none
+		sourceColumn: installation_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column bemand_min
+		dataType: double
+		lineageTag: 5fddb893-6c32-4a31-bd65-503cacdf1409
+		summarizeBy: sum
+		sourceColumn: bemand_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column onderhoud_min
+		dataType: double
+		lineageTag: 714b8dcc-e0f1-4ce2-9d8f-1e2ecdd60a65
+		summarizeBy: sum
+		sourceColumn: onderhoud_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gepland_min
+		dataType: double
+		lineageTag: 8000a6bc-4fe4-49dc-b9b0-3df01f3f93cc
+		summarizeBy: sum
+		sourceColumn: gepland_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column stilstand_min
+		dataType: double
+		lineageTag: 0bebd58d-dd0e-474f-8a30-7e9e475d811c
+		summarizeBy: sum
+		sourceColumn: stilstand_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ongepland_min
+		dataType: double
+		lineageTag: 5668123c-6d57-4e6f-93c5-9a70823d9ff1
+		summarizeBy: sum
+		sourceColumn: ongepland_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column looptijd_min
+		dataType: double
+		lineageTag: 12a0b56b-4bfc-44d3-a384-b1856aeb81aa
+		summarizeBy: sum
+		sourceColumn: looptijd_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column productie_min
+		dataType: double
+		lineageTag: b02860a1-464e-4163-a111-4aedad55b6be
+		summarizeBy: sum
+		sourceColumn: productie_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ideale_min
+		dataType: double
+		lineageTag: c2295c6f-aee2-417a-a56f-e5d6c4f181d2
+		summarizeBy: sum
+		sourceColumn: ideale_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column storingen
+		dataType: int64
+		formatString: 0
+		lineageTag: ceeb7d5f-a703-45d1-8567-18741145df38
+		summarizeBy: sum
+		sourceColumn: storingen
+
+		annotation SummarizationSetBy = Automatic
+
+	column rollen
+		dataType: int64
+		formatString: 0
+		lineageTag: d5fd1337-9892-4a92-9e82-6f53d0a2aefe
+		summarizeBy: sum
+		sourceColumn: rollen
+
+		annotation SummarizationSetBy = Automatic
+
+	column rollen_defect
+		dataType: int64
+		formatString: 0
+		lineageTag: b29f2a0b-18c7-46ca-b572-991fa9e871ce
+		summarizeBy: sum
+		sourceColumn: rollen_defect
+
+		annotation SummarizationSetBy = Automatic
+
+	column ton
+		dataType: double
+		lineageTag: 6c8681c7-80b0-4f81-a78a-d62ab8ca0d13
+		summarizeBy: sum
+		sourceColumn: ton
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ton_goed
+		dataType: double
+		lineageTag: 4f36b3fd-ba2e-4672-9334-1d32faf88c51
+		summarizeBy: sum
+		sourceColumn: ton_goed
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition OEE = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_vw_oee_shift = Source{[Schema="dwh",Item="vw_oee_shift"]}[Data],
+				    #"Removed Columns" = Table.RemoveColumns(dwh_vw_oee_shift,{"beschikbaarheid", "prestatie", "kwaliteit", "oee"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

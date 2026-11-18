@@ -1,0 +1,79 @@
+table Ploeg
+	lineageTag: a2c1b26c-cf3f-4565-bfbc-e3c7373a3598
+
+	column shift_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 66672199-bc1e-46a5-9640-0f2a8904bb7c
+		summarizeBy: none
+		sourceColumn: shift_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift_code
+		dataType: string
+		lineageTag: a366153e-1023-41b6-b650-5df028f516df
+		summarizeBy: none
+		sourceColumn: shift_code
+		sortByColumn: shift_key
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column ploeg
+		dataType: string
+		lineageTag: a7f2809b-6626-46e1-aac3-2f127752fd0c
+		summarizeBy: none
+		sourceColumn: ploeg
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_tijd
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: 6fcf72a2-1050-4569-b5ae-6dbaf0804c91
+		summarizeBy: none
+		sourceColumn: start_tijd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column eind_tijd
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: e84b516a-98ff-421a-9150-77438dcd2bb3
+		summarizeBy: none
+		sourceColumn: eind_tijd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	column ploegleider
+		dataType: string
+		lineageTag: 96942f29-f627-4a93-a3fc-caa88a110ab8
+		summarizeBy: none
+		sourceColumn: ploegleider
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Ploeg = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_dim_shift = Source{[Schema="dwh",Item="dim_shift"]}[Data]
+				in
+				    dwh_dim_shift
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

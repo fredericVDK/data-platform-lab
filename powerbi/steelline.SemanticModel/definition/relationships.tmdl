@@ -1,0 +1,28 @@
+relationship 06e07286-81cc-66ad-c055-855e70db673a
+	fromColumn: OEE.date_key
+	toColumn: Datum.date_key
+
+relationship 9882ed66-7dd2-994e-64f6-017e43cf2c24
+	fromColumn: Stilstand.date_key
+	toColumn: Datum.date_key
+
+relationship 17c08e0e-0404-324e-20dd-6769aca38446
+	fromColumn: OEE.shift_key
+	toColumn: Ploeg.shift_key
+
+relationship 3be7b285-e89f-445b-d18e-e05d1b4bf558
+	fromColumn: Stilstand.shift_key
+	toColumn: Ploeg.shift_key
+
+relationship 88865e9d-e7de-f334-fc97-34748fd503f5
+	fromColumn: OEE.installation_key
+	toColumn: Installatie.installation_key
+
+relationship ee54cf93-ef6c-e6ee-9c59-321655f28f2e
+	fromColumn: Stilstand.installation_key
+	toColumn: Installatie.installation_key
+
+relationship 9358fdea-901c-b43d-44ec-f0a4191fbb85
+	fromColumn: Stilstand.reason_key
+	toColumn: Stilstandoorzaak.reason_key
+

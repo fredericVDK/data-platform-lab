@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "steelline"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "9a8821ca-c483-4ec2-9e9e-cb4b3ca6d17c"
+  }
+}

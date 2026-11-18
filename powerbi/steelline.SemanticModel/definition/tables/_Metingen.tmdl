@@ -1,0 +1,27 @@
+table _Metingen
+	lineageTag: 2dcfd495-de29-46bd-beb7-6ed0117bddb5
+
+	measure 'Bemande tijd (min)' = SUM ( OEE[bemand_min] )
+		lineageTag: 99b284c9-2946-4995-aa86-7031c05a7788
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Column1
+		dataType: string
+		lineageTag: b6bf36a8-5184-4999-a80d-d55561d41d4e
+		summarizeBy: none
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Metingen = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

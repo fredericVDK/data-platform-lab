@@ -1,0 +1,61 @@
+table Stilstandoorzaak
+	lineageTag: 52e90f0d-2f89-4338-bd40-ad3092419914
+
+	column reason_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a54aa6f6-654f-4626-b065-5b694c0245a9
+		summarizeBy: none
+		sourceColumn: reason_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column reason_code
+		dataType: string
+		lineageTag: 8e21dd90-d46e-4fbc-97e4-0a476f4539f1
+		summarizeBy: none
+		sourceColumn: reason_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column categorie
+		dataType: string
+		lineageTag: d9f4a880-8089-4732-9dec-a43d1bebc0c3
+		summarizeBy: none
+		sourceColumn: categorie
+
+		annotation SummarizationSetBy = Automatic
+
+	column omschrijving
+		dataType: string
+		lineageTag: 9960746a-fdcd-4f20-982e-011bc67dbd8f
+		summarizeBy: none
+		sourceColumn: omschrijving
+
+		annotation SummarizationSetBy = Automatic
+
+	column standaard_gepland
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: d7c488ab-31e3-42b3-a8b0-2e96e7182f67
+		summarizeBy: none
+		sourceColumn: standaard_gepland
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Stilstandoorzaak = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_dim_downtime_reason = Source{[Schema="dwh",Item="dim_downtime_reason"]}[Data]
+				in
+				    dwh_dim_downtime_reason
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

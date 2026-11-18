@@ -1,0 +1,153 @@
+table Datum
+	lineageTag: 4cc87180-04f6-4228-9b57-3bd6adffc5ed
+	dataCategory: Time
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2fda188a-0b2c-434c-9a83-73c06b52c753
+		summarizeBy: none
+		sourceColumn: date_key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column datum
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: 5f91967f-1de9-48d9-bc4b-6c1e49c0e523
+		summarizeBy: none
+		sourceColumn: datum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column jaar
+		dataType: int64
+		formatString: 0
+		lineageTag: 22fe4171-29e5-4ad5-8a4c-f75487a35c41
+		summarizeBy: sum
+		sourceColumn: jaar
+
+		annotation SummarizationSetBy = Automatic
+
+	column kwartaal
+		dataType: int64
+		formatString: 0
+		lineageTag: 85f0f58f-a6f1-4f9d-8167-b99d6dedca78
+		summarizeBy: sum
+		sourceColumn: kwartaal
+
+		annotation SummarizationSetBy = Automatic
+
+	column maand
+		dataType: int64
+		formatString: 0
+		lineageTag: 15a1e893-9398-4574-81a3-274c12fe4824
+		summarizeBy: sum
+		sourceColumn: maand
+
+		annotation SummarizationSetBy = Automatic
+
+	column maand_naam
+		dataType: string
+		lineageTag: e0577ab4-3133-4f3b-82c7-ce81f98c812b
+		summarizeBy: none
+		sourceColumn: maand_naam
+		sortByColumn: maand
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column iso_jaar
+		dataType: int64
+		formatString: 0
+		lineageTag: ecb204ac-3fba-43b5-a4de-0aa86b073bf4
+		summarizeBy: sum
+		sourceColumn: iso_jaar
+
+		annotation SummarizationSetBy = Automatic
+
+	column iso_week
+		dataType: int64
+		formatString: 0
+		lineageTag: d8aae331-cbfc-4c7a-87ce-447a28cc05db
+		summarizeBy: sum
+		sourceColumn: iso_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column dag_van_week
+		dataType: int64
+		formatString: 0
+		lineageTag: dc65ba58-198c-4bbb-b0a2-2900731f8923
+		summarizeBy: sum
+		sourceColumn: dag_van_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column dag_naam
+		dataType: string
+		lineageTag: 4557eefa-1a47-419b-80e7-b239586592fe
+		summarizeBy: none
+		sourceColumn: dag_naam
+		sortByColumn: dag_van_week
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_weekend
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 2592cefb-a516-4bc4-8efe-125ec43b3329
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_feestdag
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7c7eeffb-3e22-48fe-a367-895abcb6b725
+		summarizeBy: none
+		sourceColumn: is_feestdag
+
+		annotation SummarizationSetBy = Automatic
+
+	column feestdag_naam
+		dataType: string
+		lineageTag: cdc987ec-3fca-4f77-b480-d67fc669eb11
+		summarizeBy: none
+		sourceColumn: feestdag_naam
+
+		annotation SummarizationSetBy = Automatic
+
+	column werkdag
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: a34657cd-8fd2-47a0-be96-d1239fea4868
+		summarizeBy: none
+		sourceColumn: werkdag
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Datum = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_dim_date = Source{[Schema="dwh",Item="dim_date"]}[Data],
+				    Custom1 = Table.SelectRows(dwh_dim_date, each [datum] >= #date(2025,1,1) and [datum] <= Date.From(DateTime.LocalNow()))
+				in
+				    Custom1
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
