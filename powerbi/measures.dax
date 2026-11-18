@@ -235,3 +235,63 @@ IF (
     NOT ISBLANK ( [Rollen] ),
     CALCULATE ( [Uitval %], DATESINPERIOD ( Datum[datum], MAX ( Datum[datum] ), -7, DAY ) )
 )
+
+// =====================================================================
+// WEEK 10 - metingen voor de rapportpagina's
+// =====================================================================
+// Tabel Productie = dwh.fact_production (1 rij per rol per installatie),
+// tabel Staalsoort = dwh.dim_steel_grade. Staalsoort filtert alleen
+// Productie: een slicer op staalsoort verandert de OEE-metingen niet.
+
+
+// ---- Kwaliteit (map: Kwaliteit) ----------------------------------------
+
+Rollen geproduceerd = COUNTROWS ( Productie )
+
+Defecte rollen =
+CALCULATE ( COUNTROWS ( Productie ), Productie[is_defect] = TRUE () )
+
+// Zelfde getal als [Uitval %], maar werkt ook per staalsoort en defecttype.
+Uitval % (rollen) = DIVIDE ( [Defecte rollen], [Rollen geproduceerd] )
+
+Gem. dikte-afwijking (mm) = AVERAGE ( Productie[thickness_dev_mm] )
+
+// Afwijking als % van de doeldikte: 0,02 mm is veel op 0,5 mm, weinig op 15 mm.
+Gem. dikte-afwijking % =
+AVERAGEX (
+    Productie,
+    DIVIDE ( Productie[thickness_dev_mm], Productie[target_thickness_mm] )
+)
+
+// Hoe sterk de dikte rond het doel schommelt; stijgt als een wals slijt.
+Spreiding dikte % =
+STDEVX.P (
+    Productie,
+    DIVIDE ( Productie[thickness_dev_mm], Productie[target_thickness_mm] )
+)
+
+% buiten tolerantie =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( Productie ), Productie[defect_type] = "dikte buiten tolerantie" ),
+    [Rollen geproduceerd]
+)
+
+Gem. temperatuur (°C) = AVERAGE ( Productie[temp_c] )
+
+
+// ---- Pareto (map: Stilstand) -------------------------------------------
+// Cumulatief aandeel van de oorzaken, van groot naar klein. Gebruik met
+// Stilstandoorzaak[omschrijving] op de as, gesorteerd op
+// [Stilstand ongepland oorzaak (min)] aflopend.
+
+Pareto cumulatief % =
+VAR _huidig = [Stilstand ongepland oorzaak (min)]
+VAR _alle =
+    ADDCOLUMNS (
+        ALLSELECTED ( Stilstandoorzaak[omschrijving] ),
+        "@min", [Stilstand ongepland oorzaak (min)]
+    )
+VAR _totaal = SUMX ( _alle, [@min] )
+VAR _cumul = SUMX ( FILTER ( _alle, [@min] >= _huidig ), [@min] )
+RETURN
+    IF ( NOT ISBLANK ( _huidig ), DIVIDE ( _cumul, _totaal ) )

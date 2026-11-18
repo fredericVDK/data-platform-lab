@@ -10,7 +10,7 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBIDesktopVersion = 2.144.1378.0 (25.06)+cba1e61f16ea36d44901f06fa446299040122394
 
-annotation PBI_QueryOrder = ["Datum","Ploeg","Installatie","Stilstandoorzaak","OEE","Stilstand","_Metingen"]
+annotation PBI_QueryOrder = ["Datum","Ploeg","Installatie","Stilstandoorzaak","OEE","Stilstand","Productie","Staalsoort","_Metingen"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -20,6 +20,8 @@ ref table Installatie
 ref table Stilstandoorzaak
 ref table OEE
 ref table Stilstand
+ref table Productie
+ref table Staalsoort
 ref table _Metingen
 
 ref cultureInfo en-US

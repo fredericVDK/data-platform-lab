@@ -26,3 +26,18 @@ relationship 9358fdea-901c-b43d-44ec-f0a4191fbb85
 	fromColumn: Stilstand.reason_key
 	toColumn: Stilstandoorzaak.reason_key
 
+relationship 444cb33c-55a2-51f0-b5a9-6cf1f60b8820
+	fromColumn: Productie.date_key
+	toColumn: Datum.date_key
+
+relationship 569e5e9c-386d-54c3-8f5e-9581337fdc18
+	fromColumn: Productie.shift_key
+	toColumn: Ploeg.shift_key
+
+relationship 1498e29a-e40b-5c12-82ff-9f2c55b4c907
+	fromColumn: Productie.installation_key
+	toColumn: Installatie.installation_key
+
+relationship 066f4e2a-db68-5c88-88ba-f28a6e840636
+	fromColumn: Productie.steel_grade_key
+	toColumn: Staalsoort.grade_key

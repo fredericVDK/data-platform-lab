@@ -279,6 +279,73 @@ table _Metingen
 		displayFolder: Trend
 		lineageTag: c59cf32d-0175-52e5-8d40-76eec1d9025d
 
+	measure 'Rollen geproduceerd' = COUNTROWS ( Productie )
+		formatString: #,0
+		displayFolder: Kwaliteit
+		lineageTag: 08abeeca-bead-51cf-bd9c-f4650bba8bea
+
+	measure 'Defecte rollen' = CALCULATE ( COUNTROWS ( Productie ), Productie[is_defect] = TRUE () )
+		formatString: #,0
+		displayFolder: Kwaliteit
+		lineageTag: 25dc13e1-9972-5008-9a05-ff60ce4b6df0
+
+	measure 'Uitval % (rollen)' = DIVIDE ( [Defecte rollen], [Rollen geproduceerd] )
+		formatString: 0.00%
+		displayFolder: Kwaliteit
+		lineageTag: c1e2d500-9291-5a85-a3b8-f40623f23bc7
+
+	measure 'Gem. dikte-afwijking (mm)' = AVERAGE ( Productie[thickness_dev_mm] )
+		formatString: 0.000
+		displayFolder: Kwaliteit
+		lineageTag: eb052ae6-cfd0-55ba-aff4-d3eaaafba173
+
+	measure 'Gem. dikte-afwijking %' =
+			AVERAGEX (
+			    Productie,
+			    DIVIDE ( Productie[thickness_dev_mm], Productie[target_thickness_mm] )
+			)
+		formatString: +0.00%;-0.00%;0.00%
+		displayFolder: Kwaliteit
+		lineageTag: bb16cd18-5888-5eb2-a239-4f4c84c66878
+
+	measure 'Spreiding dikte %' =
+			STDEVX.P (
+			    Productie,
+			    DIVIDE ( Productie[thickness_dev_mm], Productie[target_thickness_mm] )
+			)
+		formatString: 0.00%
+		displayFolder: Kwaliteit
+		lineageTag: a069b98c-8954-51f3-910a-0bb73bac6ed0
+
+	measure '% buiten tolerantie' =
+			DIVIDE (
+			    CALCULATE ( COUNTROWS ( Productie ), Productie[defect_type] = "dikte buiten tolerantie" ),
+			    [Rollen geproduceerd]
+			)
+		formatString: 0.00%
+		displayFolder: Kwaliteit
+		lineageTag: a5b6f968-a1e1-50c4-9438-0fb02db05b18
+
+	measure 'Gem. temperatuur (°C)' = AVERAGE ( Productie[temp_c] )
+		formatString: #,0.0
+		displayFolder: Kwaliteit
+		lineageTag: 45c00f2f-2e65-5231-bd4b-006f8fe96b43
+
+	measure 'Pareto cumulatief %' =
+			VAR _huidig = [Stilstand ongepland oorzaak (min)]
+			VAR _alle =
+			    ADDCOLUMNS (
+			        ALLSELECTED ( Stilstandoorzaak[omschrijving] ),
+			        "@min", [Stilstand ongepland oorzaak (min)]
+			    )
+			VAR _totaal = SUMX ( _alle, [@min] )
+			VAR _cumul = SUMX ( FILTER ( _alle, [@min] >= _huidig ), [@min] )
+			RETURN
+			    IF ( NOT ISBLANK ( _huidig ), DIVIDE ( _cumul, _totaal ) )
+		formatString: 0%
+		displayFolder: Stilstand
+		lineageTag: 0c67daa6-8e42-5eb6-8d0d-904484f2e963
+
 	column Column1
 		dataType: string
 		isHidden

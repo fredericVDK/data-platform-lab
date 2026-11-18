@@ -1,0 +1,68 @@
+table Staalsoort
+	lineageTag: 5995d0f3-fd01-5105-ad55-fa0a5ccc125b
+
+	column grade_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ab8ec6f6-e9ff-5147-830b-d66c6fa10a63
+		summarizeBy: none
+		sourceColumn: grade_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column grade_code
+		dataType: string
+		lineageTag: 1abaafda-c47a-5573-8767-a51ff93d7f09
+		summarizeBy: none
+		sourceColumn: grade_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column kwaliteit
+		dataType: string
+		lineageTag: 97112160-9308-5ad7-94ec-36d45f5d4f2c
+		summarizeBy: none
+		sourceColumn: kwaliteit
+
+		annotation SummarizationSetBy = Automatic
+
+	column familie
+		dataType: string
+		lineageTag: eaf8c44f-528c-58c7-91a9-794c8a27f573
+		summarizeBy: none
+		sourceColumn: familie
+
+		annotation SummarizationSetBy = Automatic
+
+	column min_dikte_mm
+		dataType: double
+		formatString: 0.000
+		lineageTag: 94fb460f-c80c-5632-aa2b-c393d566a4be
+		summarizeBy: none
+		sourceColumn: min_dikte_mm
+
+		annotation SummarizationSetBy = Automatic
+
+	column max_dikte_mm
+		dataType: double
+		formatString: 0.000
+		lineageTag: 9d54e2d9-a64a-5a44-876a-062ca2bcc2d2
+		summarizeBy: none
+		sourceColumn: max_dikte_mm
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Staalsoort = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_dim_steel_grade = Source{[Schema="dwh",Item="dim_steel_grade"]}[Data],
+				    Types = Table.TransformColumnTypes(dwh_dim_steel_grade, {{"grade_key", Int64.Type}, {"grade_code", type text}, {"kwaliteit", type text}, {"familie", type text}, {"min_dikte_mm", type number}, {"max_dikte_mm", type number}})
+				in
+				    Types
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

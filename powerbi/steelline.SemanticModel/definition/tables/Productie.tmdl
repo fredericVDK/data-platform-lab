@@ -1,0 +1,136 @@
+table Productie
+	lineageTag: 7d7358b3-97b9-5b60-9a1c-0cf57504e0d8
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e1a938ac-d333-5b04-ba21-fdcc94e997a6
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 821f1170-6385-5d95-9478-9a92fcbfc355
+		summarizeBy: none
+		sourceColumn: shift_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column installation_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2f33357b-6267-575b-bac4-168ca5969468
+		summarizeBy: none
+		sourceColumn: installation_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column steel_grade_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1544c7a3-7de0-56f8-93e8-7c5dd472b3e7
+		summarizeBy: none
+		sourceColumn: steel_grade_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column coil_id
+		dataType: string
+		lineageTag: 1e7c285d-07e8-5586-bce5-3bcd0252dcc5
+		summarizeBy: none
+		sourceColumn: coil_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column weight_t
+		dataType: double
+		formatString: #,0.000
+		lineageTag: 96e1d87b-4579-5b02-ad49-a5bb78d05953
+		summarizeBy: none
+		sourceColumn: weight_t
+
+		annotation SummarizationSetBy = Automatic
+
+	column thickness_mm
+		dataType: double
+		formatString: 0.000
+		lineageTag: 1c4c89ae-4f48-5284-9191-2f1fcd95e431
+		summarizeBy: none
+		sourceColumn: thickness_mm
+
+		annotation SummarizationSetBy = Automatic
+
+	column target_thickness_mm
+		dataType: double
+		formatString: 0.000
+		lineageTag: f39eca25-a905-52a3-b478-c43d487f8e7f
+		summarizeBy: none
+		sourceColumn: target_thickness_mm
+
+		annotation SummarizationSetBy = Automatic
+
+	column thickness_dev_mm
+		dataType: double
+		formatString: 0.000
+		lineageTag: 14692ef6-f980-5995-9176-985c2c2585ff
+		summarizeBy: none
+		sourceColumn: thickness_dev_mm
+
+		annotation SummarizationSetBy = Automatic
+
+	column temp_c
+		dataType: double
+		formatString: 0.0
+		lineageTag: af718e73-47e4-5c1e-8aad-bc4e168808aa
+		summarizeBy: none
+		sourceColumn: temp_c
+
+		annotation SummarizationSetBy = Automatic
+
+	column duration_min
+		dataType: double
+		formatString: 0.00
+		lineageTag: dc24f1e8-e936-5067-b8fe-7208bdb929e0
+		summarizeBy: none
+		sourceColumn: duration_min
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_defect
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: b2c6ae08-76e6-592d-892f-dcdf5cde0074
+		summarizeBy: none
+		sourceColumn: is_defect
+
+		annotation SummarizationSetBy = Automatic
+
+	column defect_type
+		dataType: string
+		lineageTag: 4817f6f0-82f9-50c3-8907-4f7506ba9cf3
+		summarizeBy: none
+		sourceColumn: defect_type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Productie = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("mordor:5432", "steelline"),
+				    dwh_fact_production = Source{[Schema="dwh",Item="fact_production"]}[Data],
+				    Kolommen = Table.SelectColumns(dwh_fact_production, {"coil_id", "date_key", "shift_key", "installation_key", "steel_grade_key", "weight_t", "thickness_mm", "target_thickness_mm", "thickness_dev_mm", "temp_c", "duration_min", "is_defect", "defect_type"}),
+				    Types = Table.TransformColumnTypes(Kolommen, {{"date_key", Int64.Type}, {"shift_key", Int64.Type}, {"installation_key", Int64.Type}, {"steel_grade_key", Int64.Type}, {"coil_id", type text}, {"weight_t", type number}, {"thickness_mm", type number}, {"target_thickness_mm", type number}, {"thickness_dev_mm", type number}, {"temp_c", type number}, {"duration_min", type number}, {"is_defect", type logical}, {"defect_type", type text}})
+				in
+				    Types
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
