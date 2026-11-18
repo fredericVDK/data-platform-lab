@@ -7,13 +7,13 @@ Deze map bevat het rapport als **Power BI-project** (`.pbip`), zodat het in Git 
 
 ### Status
 
-- [ ] `sql/005_reporting_views.sql` opnieuw uitgevoerd op de server (stilstand-view heeft nu `shift_key`)
-- [ ] Verbinding vanuit Power BI Desktop via Tailscale met `bi_reader`
-- [ ] 4 dimensies + 2 views geïmporteerd en opgeschoond in Power Query
-- [ ] Relaties: sterstructuur, één-op-veel, enkelvoudige filterrichting
-- [ ] `Datum` gemarkeerd als datumtabel, automatische datum/tijd uit
+- [x] `sql/005_reporting_views.sql` opnieuw uitgevoerd op de server (stilstand-view heeft nu `shift_key`)
+- [x] Verbinding vanuit Power BI Desktop via Tailscale met `bi_reader`
+- [x] 4 dimensies + 2 views geïmporteerd en opgeschoond in Power Query
+- [x] Relaties: sterstructuur, één-op-veel, enkelvoudige filterrichting
+- [x] `Datum` gemarkeerd als datumtabel, automatische datum/tijd uit
 - [ ] Basismetingen (OEE, stilstand) toegevoegd en gecontroleerd tegen SQL
-- [ ] Opgeslagen als `powerbi/SteelLine.pbip` en gecommit
+- [x] Opgeslagen als `powerbi/steelline.pbip` en gecommit
 
 ---
 
@@ -167,12 +167,12 @@ Lukt *.pbip* niet in jouw versie: **Bestand → Opties → Preview-functies → 
 
 ### Status
 
-- [ ] Productie, doorvoer en uitval %
-- [ ] Stilstand, % ongepland, MTBF / MTTR (nieuwe definitie)
-- [ ] OEE
-- [ ] Tijdvergelijkingen en voortschrijdend gemiddelde
+- [x] Productie, doorvoer en uitval %
+- [x] Stilstand, % ongepland, MTBF / MTTR (nieuwe definitie)
+- [x] OEE
+- [x] Tijdvergelijkingen en voortschrijdend gemiddelde
 - [ ] Gecontroleerd met [`controle_week9.sql`](controle_week9.sql)
-- [ ] `.pbip` opgeslagen en gecommit
+- [x] Metingen staan in `steelline.SemanticModel/definition/tables/_Metingen.tmdl` (44, met mappen en opmaak)
 
 ### 1. Metingen toevoegen
 
