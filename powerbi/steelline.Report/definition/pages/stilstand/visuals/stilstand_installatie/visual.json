@@ -1,0 +1,140 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "stilstand_installatie",
+  "position": {
+    "x": 862,
+    "y": 84,
+    "z": 11,
+    "width": 402,
+    "height": 320,
+    "tabOrder": 11
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Installatie"
+                    }
+                  },
+                  "Property": "installation_code"
+                }
+              },
+              "queryRef": "Installatie.installation_code",
+              "nativeQueryRef": "installation_code",
+              "displayName": "Installatie"
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Stilstandoorzaak"
+                    }
+                  },
+                  "Property": "categorie"
+                }
+              },
+              "queryRef": "Stilstandoorzaak.categorie",
+              "nativeQueryRef": "categorie",
+              "displayName": "Categorie"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Metingen"
+                    }
+                  },
+                  "Property": "Stilstand ongepland oorzaak (min)"
+                }
+              },
+              "queryRef": "_Metingen.Stilstand ongepland oorzaak (min)",
+              "nativeQueryRef": "Stilstand ongepland oorzaak (min)",
+              "displayName": "Ongeplande stilstand (min)"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Ongeplande stilstand per installatie'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'per categorie; rechtsklik → Drill through → Details'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

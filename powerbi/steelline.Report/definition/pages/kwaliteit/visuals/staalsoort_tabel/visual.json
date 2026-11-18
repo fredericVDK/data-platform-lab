@@ -1,0 +1,162 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "staalsoort_tabel",
+  "position": {
+    "x": 862,
+    "y": 400,
+    "z": 14,
+    "width": 402,
+    "height": 304,
+    "tabOrder": 14
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Staalsoort"
+                    }
+                  },
+                  "Property": "grade_code"
+                }
+              },
+              "queryRef": "Staalsoort.grade_code",
+              "nativeQueryRef": "grade_code",
+              "displayName": "Staalsoort"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Metingen"
+                    }
+                  },
+                  "Property": "Rollen geproduceerd"
+                }
+              },
+              "queryRef": "_Metingen.Rollen geproduceerd",
+              "nativeQueryRef": "Rollen geproduceerd",
+              "displayName": "Rollen"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Metingen"
+                    }
+                  },
+                  "Property": "Uitval % (rollen)"
+                }
+              },
+              "queryRef": "_Metingen.Uitval % (rollen)",
+              "nativeQueryRef": "Uitval % (rollen)",
+              "displayName": "Uitval %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Metingen"
+                    }
+                  },
+                  "Property": "Gem. dikte-afwijking %"
+                }
+              },
+              "queryRef": "_Metingen.Gem. dikte-afwijking %",
+              "nativeQueryRef": "Gem. dikte-afwijking %",
+              "displayName": "Gem. afwijking"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Metingen"
+                    }
+                  },
+                  "Property": "% buiten tolerantie"
+                }
+              },
+              "queryRef": "_Metingen.% buiten tolerantie",
+              "nativeQueryRef": "% buiten tolerantie",
+              "displayName": "Buiten tolerantie"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Per staalsoort'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'afwijking = (gemeten − doel) / doel'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "details",
+  "displayName": "Details",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "drill_installatie",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Installatie"
+              }
+            },
+            "Property": "installation_code"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "type": "Drillthrough",
+  "pageBinding": {
+    "name": "drill_installatie_binding",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "drill_installatie_param",
+        "boundFilter": "drill_installatie",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Installatie"
+              }
+            },
+            "Property": "installation_code"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json",
+  "name": "stilstand_tijd",
+  "position": {
+    "x": 16,
+    "y": 420,
+    "z": 12,
+    "width": 830,
+    "height": 284,
+    "tabOrder": 12
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Datum"
+                    }
+                  },
+                  "Property": "jaar"
+                }
+              },
+              "queryRef": "Datum.jaar",
+              "nativeQueryRef": "jaar",
+              "displayName": "Jaar",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Datum"
+                    }
+                  },
+                  "Property": "maand_naam"
+                }
+              },
+              "queryRef": "Datum.maand_naam",
+              "nativeQueryRef": "maand_naam",
+              "displayName": "Maand",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Datum"
+                    }
+                  },
+                  "Property": "datum"
+                }
+              },
+              "queryRef": "Datum.datum",
+              "nativeQueryRef": "datum",
+              "displayName": "Dag",
+              "active": false
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Metingen"
+                    }
+                  },
+                  "Property": "Stilstand ongepland oorzaak (min)"
+                }
+              },
+              "queryRef": "_Metingen.Stilstand ongepland oorzaak (min)",
+              "nativeQueryRef": "Stilstand ongepland oorzaak (min)",
+              "displayName": "Ongeplande stilstand (min)"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "dataPoint": [
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E66C37'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Ongeplande stilstand in de tijd'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'drill-down: jaar → maand → dag (pijltjes rechtsboven)'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

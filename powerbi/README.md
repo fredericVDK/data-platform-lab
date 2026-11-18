@@ -249,7 +249,38 @@ git push
 
 ---
 
-## Week 10 (overzicht)
+## Week 10 — rapport
 
-Pagina's *Overzicht*, *Stilstand* (Pareto, drill-down), *Kwaliteit* en een drill-through per installatie; slicers, tooltips, vaste kleuren; screenshots en een korte schermopname.
-Voor *Kwaliteit* (dikte tegenover doel, uitval per staalsoort) komen `fact_production` en `dim_steel_grade` erbij in het model.
+Het rapport staat in PBIR-formaat (`steelline.Report/definition/pages/`): elke pagina en elke visual is een eigen JSON-bestand.
+Het model kreeg er twee tabellen bij: **Productie** (`dwh.fact_production`) en **Staalsoort** (`dwh.dim_steel_grade`), met relaties naar Datum, Ploeg, Installatie en Staalsoort.
+
+### Status
+
+- [x] Pagina 1 Overzicht: KPI-kaarten (OEE, productie, uitval %, ongeplande stilstand) met verschil tegenover vorige maand, OEE-trend per dag met 7-daags gemiddelde, OEE per installatie
+- [x] Pagina 2 Stilstand: Pareto per oorzaak, per installatie en categorie, drill-down jaar → maand → dag, MTBF/MTTR per installatie
+- [x] Pagina 3 Kwaliteit: uitval per ploeg en staalsoort, defecten per soort, spreiding dikte tegenover doel, tabel per staalsoort
+- [x] Pagina 4 Details: drill-through op installatie (rechtsklik → *Drill through* → *Details*), terugknop
+- [x] Slicers datum, ploeg, installatie, gesynchroniseerd over de pagina's; uitleg in subtitels en het ⓘ-icoon; vaste kleur per installatie
+- [ ] Nagekeken in Power BI Desktop en bijgewerkt waar nodig
+- [ ] Optioneel: rijbeveiliging (RLS) per ploeg
+- [ ] Screenshots in `powerbi/screenshots/` + schermopname van 1–2 min
+
+### Eerste keer openen
+
+1. Open `steelline.pbip` → **Refresh** (laadt Productie en Staalsoort voor het eerst).
+2. Overloop de vier pagina's. Verschuiven, vergroten en opmaak aanpassen mag gewoon; bewaar daarna.
+
+### Kleuren
+
+| Installatie | Kleur |
+| --- | --- |
+| WW1 warmwals | `#118DFF` blauw |
+| BL1 beitslijn | `#12239E` donkerblauw |
+| KW1 koudwals | `#E66C37` oranje |
+| GO1 gloeioven | `#6B007B` paars |
+
+Stilstand en defecten staan in oranje, uitval in donkerblauw.
+
+### De vraag uit het plan
+
+*"Welke installatie had vorige maand de meeste ongeplande stilstand, en waarom?"* → pagina **Stilstand**, datum-slicer op vorige maand: de staafgrafiek rechtsboven toont de installatie, de Pareto de oorzaak. Rechtsklik op die installatie → **Drill through → Details** voor het verloop.
